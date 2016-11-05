@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Angband V4</string>
+    <string name="app_name">Angband</string>
 
     <string-array name="gamePluginDescriptions">
-      <item>Angband v4</item>
+      <item>Angband</item>
     </string-array>
     <string-array name="gamePluginNames">
-      <item>v4</item>
+      <item>angband</item>
     </string-array>
     <string-array name="gamePlugins">
       <item>0</item>

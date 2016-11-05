@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Angband" default="angband-debug">
+
+    <target name="angband-debug"   depends="plugin-resources, debug" />
+
+<!--
+    ************************************************************************
+    *                                                                      *
+    *  Plugins                                                             *
+    *                                                                      *
+    ************************************************************************
+-->
+
+    <target name="plugin-resources">
+	<ant inheritAll="true" antfile="plugin/build.xml" target="plugin-resources">
+	    <property name="plugin.name" value="angband"/>
+	    <property name="pluginzip.name" value="angband"/>
+	</ant>
+    </target>
+
+    <target name="-post-compile">
+	  <ant inheritAll="true" antfile="plugin/build.xml" target="angband-javah">
+	  </ant>
+
+	  <ant inheritAll="true" antfile="plugin/build.xml" target="plugin-lib">
+	    <property name="plugin.name" value="loader"/>
+	    <property name="pluginlib.name" value="loader-angband"/>
+	  </ant>
+	  <ant inheritAll="true" antfile="plugin/build.xml" target="plugin-lib">
+	    <property name="plugin.name" value="angband"/>
+	    <property name="pluginlib.name" value="angband"/>
+	  </ant>
+    </target>
+
+<!--
+    ************************************************************************
+    *                                                                      *
+    *  Android SDK Setup, etc                                              *
+    *                                                                      *
+    ************************************************************************
+-->
+
+	<!-- version-tag: 1 -->
+	<import file="${sdk.dir}/tools/ant/build.xml" />
+
+</project>
