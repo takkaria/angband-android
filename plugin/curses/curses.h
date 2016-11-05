@@ -4,39 +4,6 @@
 #include <pthread.h>
 #include <setjmp.h>
 
-#define COLOR_BLACK 0
-#define COLOR_BLUE 1
-#define COLOR_GREEN 2
-#define COLOR_CYAN 3
-#define COLOR_RED 4
-#define COLOR_MAGENTA 5
-#define COLOR_YELLOW 6
-#define COLOR_WHITE 7
-
-#define COLOR_GRAY 8
-#define COLOR_LIGHT_BLACK 8
-#define COLOR_LIGHT_BLUE 9
-#define COLOR_LIGHT_GREEN 10
-#define COLOR_LIGHT_CYAN 11
-#define COLOR_LIGHT_RED 12
-#define COLOR_LIGHT_MAGENTA 13
-#define COLOR_LIGHT_YELLOW 14
-#define COLOR_LIGHT_WHITE 15
-
-#define A_NORMAL 0
-#define A_REVERSE 0x100
-#define A_STANDOUT 0x200
-#define A_BOLD 0x400
-#define A_UNDERLINE 0x800
-//#define A_BLINK 0x1000
-//#define A_DIM 0x2000
-//#define A_ALTCHARSET 0x4000
-
-#ifndef TRUE
-#define TRUE -1
-#define FALSE 0
-#endif
-
 #define COLOR_PAIR(x) (x)
 
 #define LINES 24

@@ -39,9 +39,7 @@ static char android_savefile[50];
 static int turn_save = 0;
 static time_t savetime;
 
-static u32b color_data[BASIC_COLORS];
-
-static bool new_game = FALSE;
+static bool new_game = false;
 
 /*
  * Android's terms are boring
@@ -79,9 +77,9 @@ static term_data data[MAX_AND_TERM];
  * This function should do whatever is necessary to prepare a new "term"
  * for use by the "z-term.c" package.  This may include clearing the window,
  * preparing the cursor, setting the font/colors, etc.  Usually, this
- * function does nothing, and the "init_and()" function does it all.
+ * function does nothing, and the "init_android()" function does it all.
  */
-static void Term_init_and(term *t)
+static void Term_init_android(term *t)
 {
 	term_data *td = (term_data*)(t->data);
 }
@@ -94,7 +92,7 @@ static void Term_init_and(term *t)
  * the screen, restoring the cursor, fixing the font, etc.  Often this function
  * does nothing and lets the operating system clean up when the program quits.
  */
-static void Term_nuke_and(term *t)
+static void Term_nuke_android(term *t)
 {
 }
 
@@ -113,7 +111,7 @@ static void Term_nuke_and(term *t)
  * In general, this function should return zero if the action is successfully
  * handled, and non-zero if the action is unknown or incorrectly handled.
  */
-static errr Term_xtra_and(int n, int v)
+static errr Term_xtra_android(int n, int v)
 {
 	term_data *td = (term_data*)(Term->data);
 	jint ret;
@@ -252,7 +250,7 @@ static errr Term_xtra_and(int n, int v)
  * flag which tells "z-term.c" to treat the "cursor" as a "visual"
  * thing and not as a "hardware" cursor.
  */
-static errr Term_curs_and(int x, int y)
+static errr Term_curs_android(int x, int y)
 {
 	move(y, x);
 	return 0;
@@ -266,7 +264,7 @@ static errr Term_curs_and(int x, int y)
  *
  * You may assume "valid" input if the window is properly sized.
  */
-static errr Term_wipe_and(int x, int y, int n)
+static errr Term_wipe_android(int x, int y, int n)
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -292,12 +290,23 @@ static errr Term_wipe_and(int x, int y, int n)
 /*
  * Draw some text on the screen
  */
-static errr Term_text_and(int x, int y, int n, int a, const wchar_t *cp)
+static errr Term_text_android(int x, int y, int n, int a, const wchar_t *cp)
 {
 	term_data *td = (term_data*)(Term->data);
 
+	int fg = a % MAX_COLORS;
+	int bg;
+
+	/* Handle background */
+	switch (a / MAX_COLORS) {
+		case BG_BLACK:  bg = COLOUR_DARK;  break;
+		case BG_SAME:   bg = fg;           break;
+		case BG_DARK:	bg = COLOUR_SHADE; break;
+	}
+
 	move(y, x);
-	attrset(a);
+	attrset(fg);
+//	bgattrset(bg);
 	addnwstr(n, cp);
 
 	/* Success */
@@ -307,7 +316,7 @@ static errr Term_text_and(int x, int y, int n, int a, const wchar_t *cp)
 /*
  * Draw some attr/char pairs on the screen
  */
-static errr Term_pict_and(int x, int y, int n, const int *ap, const wchar_t *cp,
+static errr Term_pict_android(int x, int y, int n, const int *ap, const wchar_t *cp,
 						  const int *tap, const wchar_t *tcp)
 {
 	return 0;
@@ -328,10 +337,10 @@ static errr Term_pict_and(int x, int y, int n, const int *ap, const wchar_t *cp,
  * Technically, only the "main screen window" needs to queue any
  * characters, but this method is simple.  One way to allow some
  * variation is to add fields to the "term_data" structure listing
- * parameters for that window, initialize them in the "init_and()"
+ * parameters for that window, initialize them in the "init_android()"
  * function, and then use them in the code below.
  *
- * Note that "activation" calls the "Term_init_and()" hook for
+ * Note that "activation" calls the "Term_init_android()" hook for
  * the "term" structure, if needed.
  */
 static void term_data_link(int i)
@@ -343,41 +352,41 @@ static void term_data_link(int i)
 	term_init(t, 80, 24, 256);
 
 #if defined(ANGDROID_ANGBAND_PLUGIN)
-	t->complex_input = TRUE;
+	t->complex_input = true;
 #endif
 
 	/* Choose "soft" or "hard" cursor XXX XXX XXX */
 	/* A "soft" cursor must be explicitly "drawn" by the program */
 	/* while a "hard" cursor has some "physical" existance and is */
 	/* moved whenever text is drawn on the screen.  See "z-term.c". */
-	t->soft_cursor = FALSE;
+	t->soft_cursor = false;
 
 	/* Use "Term_text()" even for "black" text XXX XXX XXX */
-	/* See the "Term_text_and()" function above. */
-	t->always_text = TRUE;
+	/* See the "Term_text_android()" function above. */
+	t->always_text = true;
 
 	/* Ignore the "TERM_XTRA_BORED" action XXX XXX XXX */
 	/* This may make things slightly more efficient. */
-	 t->never_bored = TRUE;
+	 t->never_bored = true;
 
 	/* Ignore the "TERM_XTRA_FROSH" action XXX XXX XXX */
 	/* This may make things slightly more efficient. */
-	t->never_frosh = TRUE;
+	t->never_frosh = true;
 
 	/* Erase with "white space" XXX XXX XXX */
 	/* t->attr_blank = TERM_WHITE; */
 	/* t->char_blank = ' '; */
 
 	/* Prepare the init/nuke hooks */
-	t->init_hook = Term_init_and;
-	t->nuke_hook = Term_nuke_and;
+	t->init_hook = Term_init_android;
+	t->nuke_hook = Term_nuke_android;
 
 	/* Prepare the template hooks */
-	t->xtra_hook = Term_xtra_and;
-	t->curs_hook = Term_curs_and;
-	t->wipe_hook = Term_wipe_and;
-	t->text_hook = Term_text_and;
-	t->pict_hook = Term_pict_and;
+	t->xtra_hook = Term_xtra_android;
+	t->curs_hook = Term_curs_android;
+	t->wipe_hook = Term_wipe_android;
+	t->text_hook = Term_text_android;
+	t->pict_hook = Term_pict_android;
 
 	/* Remember where we came from */
 	t->data = td;
@@ -407,7 +416,7 @@ static void hook_quit(const char* str)
 /*
  * Initialization function
  */
-errr init_and(void)
+errr init_android(void)
 {
 	int i;
 
@@ -428,6 +437,29 @@ errr init_and(void)
 	return 0;
 }
 
+/*
+ * Initialise colors
+ */
+void init_colors(void)
+{
+	int i;
+	uint32_t color_data[BASIC_COLORS];
+
+	for (i = 0; i < BASIC_COLORS; i++) {
+		color_data[i] = ((uint32_t)(0xFF << 24))
+			| ((uint32_t)(angband_color_table[i][1] << 16))
+			| ((uint32_t)(angband_color_table[i][2] << 8))
+			| ((uint32_t)(angband_color_table[i][3]));
+	}
+
+	initscr();
+	for (i = 0; i < BASIC_COLORS; i++) {
+		init_color(i, color_data[i]);
+	}
+	for (i = 0; i < BASIC_COLORS; i++) {
+		init_pair(i, i, 0);
+	}
+}
 
 /*
  * Init some stuff
@@ -439,17 +471,9 @@ void init_android_stuff(void)
 {
 	LOGD("angdroid.init_android_stuff");
 
-	/* Prepare the path XXX XXX XXX */
-	/* This must in some way prepare the "path" variable */
-	/* so that it points at the "lib" directory.  Every */
-	/* machine handles this in a different way... */
-	// passed in android_files_path;
-
-	/* Make sure it's terminated */
-	android_files_path[511] = '\0';
-
 	/* Hack -- Add a path separator (only if needed) */
-	if (!suffix(android_files_path, PATH_SEP)) my_strcat(android_files_path, PATH_SEP, sizeof(android_files_path));
+	if (!suffix(android_files_path, PATH_SEP))
+		my_strcat(android_files_path, PATH_SEP, sizeof(android_files_path));
 
 	//LOGD(android_files_path);
 
@@ -461,28 +485,23 @@ void init_android_stuff(void)
 		quit("The Angband 'lib' folder is probably missing or misplaced.");
 	}
 
-	char temp[1024];
-	strnfmt(temp, sizeof(temp), "%s", android_savefile);
-	path_build(savefile, sizeof(savefile), ANGBAND_DIR_SAVE, temp);
-
 	savefile_set_name(android_savefile);
 }
 
 int queryInt(const char* argv0) {
 	int result = -1;
-	if (strcmp(argv0,"pv")==0) {
+
+	if (strcmp(argv0, "pv") == 0) {
 		result = 1;
-	}
-	else if (strcmp(argv0,"px")==0) {
+	} else if (strcmp(argv0, "px") == 0) {
 		result = player->px;
-	}
-	else if (strcmp(argv0,"rl")==0) {
+	} else if (strcmp(argv0, "rl") == 0) {
 		result = 0;
 		if (op_ptr && OPT(rogue_like_commands)) result=1;
-	}
-	else {
+	} else {
 		result = -1; //unknown command
 	}
+
 	return result;
 }
 
@@ -490,10 +509,10 @@ void angdroid_process_argv(int i, const char* argv)
 {
 	switch(i) {
 		case 0: //files path
-			my_strcpy(android_files_path, argv, strlen(argv)+1);
+			my_strcpy(android_files_path, argv, sizeof(android_files_path));
 			break;
 		case 1: //savefile
-			my_strcpy(android_savefile, argv, strlen(argv)+1);
+			my_strcpy(android_savefile, argv, sizeof(android_savefile));
 			break;
 		default:
 			break;
@@ -502,30 +521,14 @@ void angdroid_process_argv(int i, const char* argv)
 
 void angdroid_main()
 {
-	/* Initialize the curses colors to our own RGB definitions */
-	int i;
-	for (i = 0; i < BASIC_COLORS; i++) {
-		color_data[i] = ((u32b)(0xFF << 24))
-			| ((u32b)(angband_color_table[i][1] << 16))
-			| ((u32b)(angband_color_table[i][2] << 8))
-			| ((u32b)(angband_color_table[i][3]));
-	}
-
-	initscr();
-	for (i = 0; i < BASIC_COLORS; i++) {
-		init_color(i, color_data[i]);
-	}
-	for (i = 0; i < BASIC_COLORS; i++) {
-		init_pair(i, i, 0);
-	}
+	init_colors();
 
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
 
-	if (init_and() != 0) quit("Oops!");
+	if (init_android() != 0) quit("Oops!");
 
-	/* XXX XXX XXX */
-	ANGBAND_SYS = "and";
+	ANGBAND_SYS = "android";
 
 	create_needed_dirs();
 
