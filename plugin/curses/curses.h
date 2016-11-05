@@ -26,6 +26,8 @@ extern WINDOW* stdscr;
 
 int attrset(int);
 int wattrset(WINDOW*, int);
+int bgattrset(int);
+int wbgattrset(WINDOW*, int);
 int attrget(int, int);
 int wattrget(WINDOW*, int, int);
 int addch(const char);

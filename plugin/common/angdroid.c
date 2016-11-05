@@ -306,7 +306,7 @@ static errr Term_text_android(int x, int y, int n, int a, const wchar_t *cp)
 
 	move(y, x);
 	attrset(fg);
-//	bgattrset(bg);
+	bgattrset(bg);
 	addnwstr(n, cp);
 
 	/* Success */

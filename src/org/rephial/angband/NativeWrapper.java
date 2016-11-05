@@ -152,43 +152,21 @@ public class NativeWrapper {
 
 	private void drawPoint(int r, int c, TermWindow.TermPoint p, boolean extendErase)
 	{
-		final int A_NORMAL = 0;
-		final int A_REVERSE = 0x100;
-		final int A_STANDOUT = 0x200;
-		final int A_BOLD = 0x400;
-		final int A_UNDERLINE = 0x800;
-		//#define A_BLINK 0x1000
-		//#define A_DIM = 0x2000;
-		//#define A_ALTCHARSET 0x4000
-
-		int color = p.Color & 0xFF;
-
-		boolean standout = ((p.Color & A_STANDOUT) != 0) 
-			|| ((p.Color & A_BOLD) != 0)
-			|| ((p.Color & A_UNDERLINE) != 0);
-						
-		boolean reverse = ((p.Color & A_REVERSE) != 0);
-
-		if (standout) color += (color < 8 ? 8 : -8);
-						
-		TermWindow.ColorPair cp = TermWindow.pairs.get(color);
-		if (cp == null) cp = TermWindow.defaultColor;
-
 		/*
-		  if (p.Char != ' ') {
-		  Formatter fmt = new Formatter();
-		  fmt.format("fcolor:%x bcolor:%x", cp.fColor, cp.bColor);
-		  Log.d("Angband","frosh '"+p.Char+"' "+fmt);
-		  }
-		*/
+		 * This is a bit hacky.  Angband doesn't actually use colour pairs -
+		 * it just sets the foreground colour.  So when we get a background
+		 * colour, we get the 'colour pair' for the background colour and use
+		 * its foreground.  XXX
+		 */
+		TermWindow.ColorPair fgCol = TermWindow.pairs.get(p.fgColor);
+		TermWindow.ColorPair bgCol = TermWindow.pairs.get(p.bgColor);
 
-		if (reverse) 
-			term.drawPoint(r, c, p.Char, cp.bColor, cp.fColor, extendErase);
-		else
-			term.drawPoint(r, c, p.Char, cp.fColor, cp.bColor, extendErase);
-							
-		p.isDirty = false;
-		p.isUgly = false;
+		if (fgCol != null && bgCol != null) {
+			term.drawPoint(r, c, p.Char, fgCol.fColor, bgCol.fColor, extendErase);
+
+			p.isDirty = false;
+			p.isUgly = false;
+		}
 	}
 
 	public void waddnstr(final int w, final int n, final byte[] cp) {
@@ -241,6 +219,13 @@ public class NativeWrapper {
 		synchronized (display_lock) {
 			TermWindow t = state.getWin(w);
 			if (t != null) t.attrset(a);
+		}
+	}
+
+	public void wbgattrset(final int w, final int a) {
+		synchronized (display_lock) {
+			TermWindow t = state.getWin(w);
+			if (t != null) t.bgattrset(a);
 		}
 	}
 

@@ -21,7 +21,8 @@ public class TermWindow {
 
 	public class TermPoint {
 		public char Char = ' ';
-		public int Color = 0;
+		public int bgColor = 0;
+		public int fgColor = 0;
 		public boolean isDirty = false;
 		public boolean isUgly = false;
 	}
@@ -32,6 +33,7 @@ public class TermWindow {
 	public int col = 0;
 	public int row = 0;
 	public int cur_color = 0;
+	public int cur_bg_color = 0;
 
 	public int cols = 0;
 	public int rows = 0;
@@ -65,14 +67,16 @@ public class TermWindow {
 	}
 
 	private TermPoint newPoint(TermPoint p) {
-		if (p == null) 
-			p = new TermPoint();
-		else {
-			p.isDirty = p.isDirty || p.Char != ' ' || p.Color != 0;
+		if (p == null) {
+			return new TermPoint();
+		} else {
+			p.isDirty = p.isDirty || p.Char != ' ' || p.fgColor != 0 || p.bgColor != 0;
 			p.Char = ' ';
-			p.Color = 0;
+			p.bgColor = 0;
+			p.fgColor = 0;
+
+			return p;
 		}
-		return p;
 	}
 
 	public void clearPoint(int row, int col) {
@@ -88,6 +92,10 @@ public class TermWindow {
 
 	protected void attrset(int a) {
 		cur_color = a;
+	}
+
+	protected void bgattrset(int a) {
+		cur_bg_color = a;
 	}
 
 	public void clear() {
@@ -146,7 +154,7 @@ public class TermWindow {
 
 	public int attrget(int row, int col) {
 		if (col>-1 && col<cols && row>-1 & row<rows) {
-			return buffer[row][col].Color;
+			return buffer[row][col].fgColor;
 		}
 		return -1;
 	}
@@ -184,9 +192,14 @@ public class TermWindow {
 				for(int c=ix0;c<=ix1;c++) {
 					TermPoint p1 = wsrc.buffer[r-wsrc.begin_y][c-wsrc.begin_x];
 					TermPoint p2 = buffer[r-begin_y][c-begin_x];
-					p2.isDirty = p2.isDirty || p2.Char != p1.Char || p2.Color != p1.Color;
-					p2.Char = p1.Char;
-					p2.Color = p1.Color;
+					if (p2.Char != p1.Char ||
+							p2.fgColor != p1.fgColor ||
+							p2.bgColor != p2.bgColor) {
+						p2.isDirty = true;
+						p2.Char = p1.Char;
+						p2.bgColor = p1.bgColor;
+						p2.fgColor = p1.fgColor;
+					}
 				}
 			}
 		}
@@ -231,9 +244,15 @@ public class TermWindow {
 			if (c > 19) {
 				TermPoint p = buffer[row][col];
 			
-				p.isDirty = p.isDirty || p.Char != c || p.Color != cur_color;
-				p.Char = c;
-				p.Color = cur_color;
+				if (p.Char != c ||
+						p.fgColor != cur_color ||
+						p.bgColor != cur_bg_color) {
+					p.isDirty = true;
+					p.Char = c;
+					p.fgColor = cur_color;
+					p.bgColor = cur_bg_color;
+				}
+
 				advance();
 			}
 			else if (c == 9) {  // recurse to expand that tab

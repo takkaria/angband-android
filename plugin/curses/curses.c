@@ -26,6 +26,7 @@ static jobject NativeWrapperObj;
 static jmethodID NativeWrapper_fatal;
 static jmethodID NativeWrapper_warn;
 static jmethodID NativeWrapper_waddnstr;
+static jmethodID NativeWrapper_wbgattrset;
 static jmethodID NativeWrapper_wattrset;
 static jmethodID NativeWrapper_wattrget;
 static jmethodID NativeWrapper_overwrite;
@@ -66,6 +67,14 @@ int attrset(int attrs) {
 int wattrset(WINDOW* w, int attrs) {
 	LOGC("curses.wattrset %d %d",w->w,attrs);
 	JAVA_CALL(NativeWrapper_wattrset, w->w, attrs);
+	return 0;
+}
+int bgattrset(int attrs) {
+	return wbgattrset(stdscr, attrs);
+}
+int wbgattrset(WINDOW* w, int attrs) {
+	LOGC("curses.wbgattrset %d %d",w->w,attrs);
+	JAVA_CALL(NativeWrapper_wbgattrset, w->w, attrs);
 	return 0;
 }
 int attrget(int row, int col) {
@@ -473,6 +482,7 @@ JNIEXPORT void JNICALL angdroid_gameStart
 	NativeWrapper_waddnstr = JAVA_METHOD("waddnstr", "(II[B)V");
 	NativeWrapper_wattrset = JAVA_METHOD("wattrset", "(II)V");
 	NativeWrapper_wattrget = JAVA_METHOD("wattrget", "(III)I");
+	NativeWrapper_wbgattrset = JAVA_METHOD("wbgattrset", "(II)V");
 	NativeWrapper_overwrite = JAVA_METHOD("overwrite", "(II)V");
 	NativeWrapper_touchwin = JAVA_METHOD("touchwin", "(I)V");
 	NativeWrapper_whline = JAVA_METHOD("whline", "(IBI)V");
