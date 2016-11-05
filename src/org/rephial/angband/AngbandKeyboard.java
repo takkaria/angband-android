@@ -8,34 +8,61 @@ import android.inputmethodservice.KeyboardView;
 import android.inputmethodservice.KeyboardView.OnKeyboardActionListener;
 import android.util.Log;
 
+import org.rephial.angband.AngbandKeyboardView;
+
 public class AngbandKeyboard implements OnKeyboardActionListener
 {
-	KeyboardView virtualKeyboardView;
-	Keyboard virtualKeyboardQwerty;
-	Keyboard virtualKeyboardSymbols;
-	Keyboard virtualKeyboardSymbolsShift;
+	AngbandKeyboardView virtualKeyboardView;
+	Keyboard kbLayoutQwerty;
+	Keyboard kbLayoutSymbols;
+	Keyboard kbLayoutSymbolsShift;
 	StateManager state = null;
 
 	AngbandKeyboard(Context ctx)
 	{
 		state = ((GameActivity)ctx).getStateManager();
 
-		virtualKeyboardQwerty       = new Keyboard(ctx, R.xml.keyboard_qwerty);
-		virtualKeyboardSymbols      = new Keyboard(ctx, R.xml.keyboard_sym);
-		virtualKeyboardSymbolsShift = new Keyboard(ctx, R.xml.keyboard_symshift);
+		kbLayoutQwerty       = new Keyboard(ctx, R.xml.keyboard_qwerty);
+		kbLayoutSymbols      = new Keyboard(ctx, R.xml.keyboard_sym);
+		kbLayoutSymbolsShift = new Keyboard(ctx, R.xml.keyboard_symshift);
 
 		LayoutInflater inflater = LayoutInflater.from(ctx);
-		virtualKeyboardView = (KeyboardView)inflater.inflate(R.layout.input, null);
-
-		virtualKeyboardView.setKeyboard(virtualKeyboardQwerty);
+		virtualKeyboardView = (AngbandKeyboardView)inflater.inflate(R.layout.input, null);
 		virtualKeyboardView.setOnKeyboardActionListener(this);
+
+		switchKeyboard(kbLayoutQwerty);
+	}
+
+	private void switchKeyboard(Keyboard newKb)
+	{
+		Keyboard current = virtualKeyboardView.getKeyboard();
+
+		if (newKb == current) {
+			return;
+		} else {
+			if (current == kbLayoutSymbols) {
+				virtualKeyboardView.setSymbolic(false);
+			} else if (current == kbLayoutSymbolsShift) {
+				virtualKeyboardView.setControl(false);
+			} else if (current == kbLayoutQwerty) {
+				virtualKeyboardView.setShifted(false);
+			}
+
+			virtualKeyboardView.setKeyboard(newKb);
+
+			if (newKb == kbLayoutSymbols) {
+				virtualKeyboardView.setSymbolic(true);
+			} else if (newKb == kbLayoutSymbolsShift) {
+				virtualKeyboardView.setControl(true);
+			}
+		}
 	}
 
 	private void handleShift()
 	{
 		Keyboard currentKeyboard = virtualKeyboardView.getKeyboard();
 
-		if (currentKeyboard == virtualKeyboardQwerty) {
+		if (currentKeyboard == kbLayoutQwerty) {
 			virtualKeyboardView.setShifted(!virtualKeyboardView.isShifted());
 		}
 	}
@@ -54,37 +81,39 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 				break;
 
 			case Keyboard.KEYCODE_ALT: {
-				Keyboard current = virtualKeyboardView.getKeyboard();
-				if (current == virtualKeyboardSymbolsShift) {
-					virtualKeyboardView.setKeyboard(virtualKeyboardQwerty);
+				Keyboard keyboard = virtualKeyboardView.getKeyboard();
+				if (keyboard == kbLayoutSymbolsShift) {
+					keyboard = kbLayoutQwerty;
 				} else {
-					virtualKeyboardView.setKeyboard(virtualKeyboardSymbolsShift);
+					keyboard = kbLayoutSymbolsShift;
 				}
+
+				switchKeyboard(keyboard);
 				break;
 			}
 
 			case Keyboard.KEYCODE_MODE_CHANGE: {
 				Keyboard keyboard = virtualKeyboardView.getKeyboard();
-				if (keyboard == virtualKeyboardSymbols) {
-					keyboard = virtualKeyboardQwerty;
+				if (keyboard == kbLayoutSymbols) {
+					keyboard = kbLayoutQwerty;
 				} else {
-					keyboard = virtualKeyboardSymbols;
+					keyboard = kbLayoutSymbols;
 				}
 
-				virtualKeyboardView.setKeyboard(keyboard);
-				if (keyboard == virtualKeyboardSymbols) {
-					keyboard.setShifted(false);
-				}
-
+				switchKeyboard(keyboard);
 				break;
 			}
 
 			default: {
 				c = (char)primaryCode;
-				if (virtualKeyboardView.getKeyboard() == virtualKeyboardQwerty &&
+				if (virtualKeyboardView.getKeyboard() == kbLayoutQwerty &&
 						virtualKeyboardView.isShifted()) {
 					c = Character.toUpperCase(c);
 					virtualKeyboardView.setShifted(false);
+				}
+
+				if (virtualKeyboardView.getKeyboard() == kbLayoutSymbolsShift) {
+					switchKeyboard(kbLayoutQwerty);
 				}
 
 				break;
