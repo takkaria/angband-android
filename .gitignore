@@ -1,0 +1,8 @@
+*.o
+bin
+libs
+gen
+plugin/*/extsrc
+plugin/*/libs
+plugin/*/obj
+

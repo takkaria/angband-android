@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Angband" default="v4-debug">
+	<loadproperties srcFile="project.properties" />
+	<property file="ant.properties" />
+
+	<target name="v4-debug">
+		<ant inheritAll="true" dir="." antfile="build-v4.xml" target="v4-debug" />
+	</target>
+
+	<target name="v4-plugin-src">
+		<ant inheritAll="true" dir="." antfile="build-v4.xml" target="plugin-src" />
+	</target>
+</project>
