@@ -30,16 +30,9 @@
 #include "ui-input.h"
 #include "ui-game.h" // save_game()
 
-#ifndef BASIC_COLORS
-#define BASIC_COLORS 16
-#endif
-
 static char android_files_path[1024];
 static char android_savefile[50];
 static int turn_save = 0;
-static time_t savetime;
-
-static bool new_game = false;
 
 /*
  * Android's terms are boring
@@ -96,6 +89,29 @@ static void Term_nuke_android(term *t)
 {
 }
 
+void try_save(void) {
+	/* flag to prevent re-entrant saving due to Term_xtra
+	   being called in display functions during save */
+	static bool save_in_progress = false;
+
+	int should_save = (turn_save != turn && turn > 1);
+
+	if (!save_in_progress
+			&& should_save
+			&& player != NULL
+			&& !player->is_dead) {
+
+		LOGD("TERM_XTRA_EVENT trying to save");
+
+		save_in_progress = true;
+		save_game();
+		turn_save = turn;
+		save_in_progress = false;
+	} else {
+		LOGD("TERM_XTRA_EVENT.save skipped");
+	}
+}
+
 /*
  * Do a "special thing" to the current "term"
  *
@@ -115,11 +131,6 @@ static errr Term_xtra_android(int n, int v)
 {
 	term_data *td = (term_data*)(Term->data);
 	jint ret;
-	int key;
-
-	/* flag to prevent re-entrant saving due to Term_xtra
-	   being called in display functions during save */
-	static int save_in_progress = 0;
 
 	switch (n)
 	{
@@ -145,42 +156,17 @@ static errr Term_xtra_android(int n, int v)
 			 * This action is required.
 			 */
 
-			key = angdroid_getch(v);
-
-			LOGD("keypress %d, char '%c'", (int)key, (char)key);
+			int key = angdroid_getch(v);
 
 			if (key == -1) {
-				LOGD("TERM_XTRA_EVENT.saving game");
-
-				int should_save = (turn_save != turn && turn > 1);
-
-				if (!save_in_progress
-						&& should_save
-						&& player != NULL
-						&& !player->is_dead) {
-					save_in_progress = 1;
-
-					save_game();
-
-					time(&savetime);
-					turn_save = turn;
-					save_in_progress = 0;
-
-					LOGD("TERM_XTRA_EVENT.saved game success");
-				}
-				else {
-					LOGD("TERM_XTRA_EVENT.save skipped");
-				}
-			}
-			else if (v == 0) {
-				while (key != 0)
-				{
-					Term_keypress(key,0);
+				try_save();
+			} else if (v == 0) {
+				while (key != 0) {
+					Term_keypress(key, 0);
 					key = angdroid_getch(v);
 				}
-			}
-			else {
-				Term_keypress(key,0);
+			} else {
+				Term_keypress(key, 0);
 			}
 
 			return 0;
@@ -353,9 +339,7 @@ static void term_data_link(int i)
 	/* Initialize the term */
 	term_init(t, 80, 24, 256);
 
-#if defined(ANGDROID_ANGBAND_PLUGIN)
 	t->complex_input = true;
-#endif
 
 	/* Choose "soft" or "hard" cursor XXX XXX XXX */
 	/* A "soft" cursor must be explicitly "drawn" by the program */
@@ -547,7 +531,6 @@ void angdroid_main()
 	pause_line(Term);
 
 	/* Play game */
-	time(&savetime);
 	play_game(false);
 
 	/* Free resources */
