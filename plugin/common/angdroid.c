@@ -147,6 +147,8 @@ static errr Term_xtra_android(int n, int v)
 
 			key = angdroid_getch(v);
 
+			LOGD("keypress %d, char '%c'", (int)key, (char)key);
+
 			if (key == -1) {
 				LOGD("TERM_XTRA_EVENT.saving game");
 

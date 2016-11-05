@@ -33,53 +33,18 @@ final public class Plugins {
 		return p.toString().toLowerCase();
 	}
 
-	public static int getKeyDown(Plugin p) {
-		switch (p) {
-		default: return '2';
-		}
-	}
+	/* These should all match with ui-event.h */
+	public static int getKeyDown(Plugin p)        { return 0x80; }
+	public static int getKeyUp(Plugin p)          { return 0x83; }
+	public static int getKeyLeft(Plugin p)        { return 0x81; }
+	public static int getKeyRight(Plugin p)       { return 0x82; }
 
-	public static int getKeyUp(Plugin p) {
-		switch (p) {
-		default: return '8';
-		}
-	}
-
-	public static int getKeyLeft(Plugin p) {
-		switch (p) {
-		default: return '4';
-		}
-	}
-
-	public static int getKeyRight(Plugin p) {
-		switch (p) {
-		default: return '6';
-		}
-	}
-
-	public static int getKeyEnter(Plugin p) {
-		return '\r';
-	}
-
-	public static int getKeyTab(Plugin p) {
-		return '\t';
-	}
-
-	public static int getKeyDelete(Plugin p) {
-		return 0x7F;
-	}
-
-	public static int getKeyBackspace(Plugin p) {
-		return '\b';
-	}
-
-	public static int getKeyEsc(Plugin p) {
-		return 0x1B;
-	}
-
-	public static int getKeyQuitAndSave(Plugin p) {
-		return 0x18;
-	}
+	public static int getKeyEnter(Plugin p)       { return 0x9c; }
+	public static int getKeyTab(Plugin p)         { return 0x9d; }
+	public static int getKeyDelete(Plugin p)      { return 0x9e; }
+	public static int getKeyBackspace(Plugin p)   { return 0x9f; }
+	public static int getKeyEsc(Plugin p)         { return 0xE000; }
+	public static int getKeyQuitAndSave(Plugin p) { return 0x18; }
 
 	public static ZipInputStream getPluginZip(int plugin) {
 		InputStream is = null;

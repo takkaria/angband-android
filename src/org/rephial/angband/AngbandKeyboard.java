@@ -20,12 +20,13 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 	{
 		state = ((GameActivity)ctx).getStateManager();
 
-		virtualKeyboardQwerty = new Keyboard(ctx, R.xml.keyboard_qwerty);
-		virtualKeyboardSymbols = new Keyboard(ctx, R.xml.keyboard_sym);
+		virtualKeyboardQwerty       = new Keyboard(ctx, R.xml.keyboard_qwerty);
+		virtualKeyboardSymbols      = new Keyboard(ctx, R.xml.keyboard_sym);
 		virtualKeyboardSymbolsShift = new Keyboard(ctx, R.xml.keyboard_symshift);
+
 		LayoutInflater inflater = LayoutInflater.from(ctx);
-		virtualKeyboardView = (KeyboardView)inflater.inflate(
-				R.layout.input, null);
+		virtualKeyboardView = (KeyboardView)inflater.inflate(R.layout.input, null);
+
 		virtualKeyboardView.setKeyboard(virtualKeyboardQwerty);
 		virtualKeyboardView.setOnKeyboardActionListener(this);
 	}
@@ -33,73 +34,68 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 	private void handleShift()
 	{
 		Keyboard currentKeyboard = virtualKeyboardView.getKeyboard();
-//		checkToggleCapsLock();
-//		virtualKeyboardView.setShifted(mCapsLock || !mInputView.isShifted());
 
-		if(currentKeyboard == virtualKeyboardQwerty)
-		{
-			// checkToggleCapsLock();
-			virtualKeyboardView.setShifted(/*capslock*/ !virtualKeyboardView.isShifted());
+		if (currentKeyboard == virtualKeyboardQwerty) {
+			virtualKeyboardView.setShifted(!virtualKeyboardView.isShifted());
 		}
 	}
-	
+
 	public void onKey(int primaryCode, int[] keyCodes)
 	{
 		char c = 0;
-		if(primaryCode == Keyboard.KEYCODE_DELETE)
-		{
-			c = 0x9F;
+
+		switch (primaryCode) {
+			case Keyboard.KEYCODE_DELETE:
+				c = 0x9F;
+				break;
+
+			case Keyboard.KEYCODE_SHIFT:
+				handleShift();
+				break;
+
+			case Keyboard.KEYCODE_ALT: {
+				Keyboard current = virtualKeyboardView.getKeyboard();
+				if (current == virtualKeyboardSymbolsShift) {
+					virtualKeyboardView.setKeyboard(virtualKeyboardQwerty);
+				} else {
+					virtualKeyboardView.setKeyboard(virtualKeyboardSymbolsShift);
+				}
+				break;
+			}
+
+			case Keyboard.KEYCODE_MODE_CHANGE: {
+				Keyboard keyboard = virtualKeyboardView.getKeyboard();
+				if (keyboard == virtualKeyboardSymbols) {
+					keyboard = virtualKeyboardQwerty;
+				} else {
+					keyboard = virtualKeyboardSymbols;
+				}
+
+				virtualKeyboardView.setKeyboard(keyboard);
+				if (keyboard == virtualKeyboardSymbols) {
+					keyboard.setShifted(false);
+				}
+
+				break;
+			}
+
+			default: {
+				c = (char)primaryCode;
+				if (virtualKeyboardView.getKeyboard() == virtualKeyboardQwerty &&
+						virtualKeyboardView.isShifted()) {
+					c = Character.toUpperCase(c);
+					virtualKeyboardView.setShifted(false);
+				}
+
+				break;
+			}
 		}
-		else if(primaryCode == Keyboard.KEYCODE_SHIFT)
-		{
-			handleShift();
-		}
-		else if(primaryCode == Keyboard.KEYCODE_ALT)
-		{
-			Keyboard current = virtualKeyboardView.getKeyboard();
-			if(current == virtualKeyboardSymbolsShift)
-			{
-				virtualKeyboardView.setKeyboard(virtualKeyboardQwerty);
-			}
-			else
-			{
-				//virtualKeyboardSymbols.setShifted(true);
-				virtualKeyboardView.setKeyboard(virtualKeyboardSymbolsShift);
-				//virtualKeyboardSymbolsShift.setShifted(true);
-			}
-		}
-		else if(primaryCode == Keyboard.KEYCODE_MODE_CHANGE)
-		{
-			Keyboard current = virtualKeyboardView.getKeyboard();
-			if(current == virtualKeyboardSymbols)
-			{
-				current = virtualKeyboardQwerty;
-			}
-			else
-			{
-				current = virtualKeyboardSymbols;
-			}
-			virtualKeyboardView.setKeyboard(current);
-			if(current == virtualKeyboardSymbols)
-			{
-				current.setShifted(false);
-			}
-		}
-       	else
-		{
-			c = (char)primaryCode;			
-			if(virtualKeyboardView.getKeyboard() == virtualKeyboardQwerty && virtualKeyboardView.isShifted())
-			{
-				c = Character.toUpperCase(c);
-				virtualKeyboardView.setShifted(false);
-			}
-		}
-		if(c != 0)
-		{
+
+		if (c != 0) {
 			state.addKey(c);
 		}
 	}
-	
+
 	public void onPress(int primaryCode)
 	{
 	}
