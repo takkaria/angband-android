@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "Angband", __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , "Angband", __VA_ARGS__)
