@@ -24,11 +24,6 @@ public class ProfileCheckBoxPreference extends CheckBoxPreference
 
 			return true;
 		}
-		else if (getKey().compareTo(Preferences.KEY_AUTOSTARTBORG)==0) {
-			Preferences.getActiveProfile().setAutoStartBorg(value);
-			Preferences.saveProfiles();
-			return true;
-		}
 		return false;
 	}
 
@@ -42,9 +37,6 @@ public class ProfileCheckBoxPreference extends CheckBoxPreference
 		boolean val = defaultReturnValue;
 		if (getKey().compareTo(Preferences.KEY_SKIPWELCOME)==0) {
 			val = Preferences.getActiveProfile().getSkipWelcome();
-		}
-		else if (getKey().compareTo(Preferences.KEY_AUTOSTARTBORG)==0) {
-			val = Preferences.getActiveProfile().getAutoStartBorg();
 		}
 		return val;
     }

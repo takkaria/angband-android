@@ -36,13 +36,7 @@ public class KeyBuffer {
 		this.state = state;
 		nativew = state.nativew;
 		clear();
-		if (Preferences.getAutoStartBorg()) {
-			String magic = Plugins.getStartBorgSequence();
-			for(int i = 0; i<magic.length(); i++) {
-				keymacro.offer((int)(magic.charAt(i)));
-			}
-		}
-		else if (Preferences.getSkipWelcome()) {
+		if (Preferences.getSkipWelcome()) {
 			add(32); //space
 		}
 		quit_key_seq = 0;

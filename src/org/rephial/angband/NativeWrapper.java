@@ -33,16 +33,6 @@ public class NativeWrapper {
 		state.gameThread.setFullyInitialized();
 		int key = state.getKey(v);
 
-		/* useful when debugging borg autostart
-		if (key != 0) {
-			try{
-				Thread.sleep(1000);
-			}catch(Exception ex){}
-		}
-		else {
-			wrefresh(0);
-		}
-		*/
 		return key;
 	}
 

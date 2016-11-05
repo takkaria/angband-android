@@ -59,9 +59,6 @@
     <string name="preferences_skipwelcome_title">Skip welcome screen</string>
     <string name="preferences_skipwelcome_summary">Automatically skip the Angband welcome screen at startup</string>
 
-    <string name="preferences_autostartborg_title">Auto-start borg</string>
-    <string name="preferences_autostartborg_summary">Automatically starts your borg (Vanilla 3.x only)</string>
-
     <string-array name="orientationDescriptions">
       <item>Sensor</item>
 	  <item>Portrait</item>

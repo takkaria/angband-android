@@ -46,16 +46,6 @@ public class Profile {
 		saveFile = value;
 	}
 
-	public boolean getAutoStartBorg() {
-		return (flags & 0x0000001)!=0;
-	}
-	public void setAutoStartBorg(boolean value) {
-		if (value)
-			flags |= 0x00000001;
-		else
-			flags &= ~0x00000001;
-	}
-
 	public boolean getSkipWelcome() {
 		return (flags & 0x0000002)!=0;
 	}

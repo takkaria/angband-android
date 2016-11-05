@@ -18,11 +18,6 @@
 	   android:key="angband.skipwelcome"
 	   android:defaultValue="false" 
 	   android:summary="@string/preferences_skipwelcome_summary" />
-	<org.rephial.angband.ProfileCheckBoxPreference 
-	   android:title="@string/preferences_autostartborg_title"
-	   android:key="angband.autostartborg"
-	   android:defaultValue="false" 
-	   android:summary="@string/preferences_autostartborg_summary" />
   </PreferenceCategory>
   <PreferenceCategory android:title="@string/display_category">
 	<CheckBoxPreference 

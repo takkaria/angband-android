@@ -98,9 +98,6 @@ public class PreferencesActivity
 			if (key.compareTo(Preferences.KEY_SKIPWELCOME)==0) {
 				pcPref.setChecked(Preferences.getActiveProfile().getSkipWelcome());
 			}
-			else if (key.compareTo(Preferences.KEY_AUTOSTARTBORG)==0) {
-				pcPref.setChecked(Preferences.getActiveProfile().getAutoStartBorg());
-			}
 		} 
 		else if (pref instanceof PreferenceScreen) {
 			setSummaryAll((PreferenceScreen) pref); 

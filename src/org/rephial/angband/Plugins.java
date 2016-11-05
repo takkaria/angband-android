@@ -66,8 +66,4 @@ final public class Plugins {
 		default: return "";
 		}
 	}
-
-	public static String getStartBorgSequence() {
-		return "";
-	}
 }

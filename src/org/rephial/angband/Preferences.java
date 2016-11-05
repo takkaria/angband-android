@@ -38,7 +38,6 @@ final public class Preferences {
 	static final String KEY_GAMEPLUGIN = "angband.gameplugin";
 	static final String KEY_GAMEPROFILE = "angband.gameprofile";
 	static final String KEY_SKIPWELCOME = "angband.skipwelcome";
-	static final String KEY_AUTOSTARTBORG = "angband.autostartborg";
 
 	static final String KEY_PROFILES = "angband.profiles";
 	static final String KEY_ACTIVEPROFILE = "angband.activeprofile";
@@ -172,10 +171,6 @@ final public class Preferences {
 
 	public static boolean getSkipWelcome() {
 		return getActiveProfile().getSkipWelcome();
-	}
-
-	public static boolean getAutoStartBorg() {
-		return getActiveProfile().getAutoStartBorg();
 	}
 
 	public static int[] getInstalledPlugins() {
