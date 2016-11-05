@@ -152,7 +152,7 @@ public class NativeWrapper {
 		TermWindow.ColorPair bgCol = TermWindow.pairs.get(p.bgColor);
 
 		if (fgCol != null && bgCol != null) {
-			term.drawPoint(r, c, p.Char, fgCol.fColor, bgCol.fColor, extendErase);
+			term.drawPoint(r, c, p.ch, fgCol.fColor, bgCol.fColor, extendErase);
 
 			p.isDirty = false;
 			p.isUgly = false;

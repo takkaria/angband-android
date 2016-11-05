@@ -20,11 +20,18 @@ public class TermWindow {
 	public static ColorPair defaultColor = new ColorPair(TERM_WHITE,TERM_BLACK);
 
 	public class TermPoint {
-		public char Char = ' ';
+		public char ch = ' ';
 		public int bgColor = 0;
 		public int fgColor = 0;
 		public boolean isDirty = false;
 		public boolean isUgly = false;
+
+		public void clear() {
+			isDirty = isDirty || ch != ' ' || fgColor != 0 || bgColor != 0;
+			ch = ' ';
+			bgColor = 0;
+			fgColor = 0;
+		}
 	}
 	public TermPoint[][] buffer = null; 
 
@@ -48,9 +55,9 @@ public class TermWindow {
 		this.begin_y = begin_y;
 		this.begin_x = begin_x;
 		buffer = new TermPoint[this.rows][this.cols];
-		for(int r=0;r<this.rows;r++) {
-			for(int c=0;c<this.cols;c++) {
-				buffer[r][c] = newPoint(null);
+		for (int r=0;r<this.rows;r++) {
+			for (int c=0;c<this.cols;c++) {
+				buffer[r][c] = new TermPoint();
 			}
 		}
 	}
@@ -66,26 +73,11 @@ public class TermWindow {
 		pairs.put(p, new ColorPair(fc,bc));
 	}
 
-	private TermPoint newPoint(TermPoint p) {
-		if (p == null) {
-			return new TermPoint();
-		} else {
-			p.isDirty = p.isDirty || p.Char != ' ' || p.fgColor != 0 || p.bgColor != 0;
-			p.Char = ' ';
-			p.bgColor = 0;
-			p.fgColor = 0;
-
-			return p;
-		}
-	}
-
 	public void clearPoint(int row, int col) {
-		if (col>-1 && col<cols 
-			&& row>-1 && row<rows) {
-			TermPoint p = buffer[row][col];
-			newPoint(p);
-		}
-		else {
+		if (col >= 0 && col < cols &&
+				row >= 0 && row < rows) {
+			buffer[row][col].clear();
+		} else {
 			Log.d("Angband","TermWindow.clearPoint - point out of bounds: "+col+","+row);
 		}
 	}
@@ -100,11 +92,10 @@ public class TermWindow {
 
 	public void clear() {
 		//Log.d("Angband","TermWindow.clear start "+rows+","+cols);
-		for(int r=0;r<rows;r++) {
-			for(int c=0;c<cols;c++) {
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
 				//Log.d("Angband","TermWindow.clear clearPoint "+r+","+c);
-				TermPoint p = buffer[r][c];
-				newPoint(p);
+				buffer[r][c].clear();
 			}
 		}
 		//Log.d("Angband","TermWindow.clear end");
@@ -112,18 +103,16 @@ public class TermWindow {
 
 	public void clrtoeol() {
 		//Log.d("Angband","TermWindow.clrtoeol ("+row+","+col+")");
-		for(int c=col;c<cols;c++) {
-			TermPoint p = buffer[row][c];
-			newPoint(p);
+		for (int c=col;c<cols;c++) {
+			buffer[row][c].clear();
 		}
 	}
 
 	public void clrtobot() {
 		//Log.d("Angband","TermWindow.clrtobot ("+row+","+col+")");
-		for(int r=row;r<rows;r++) {
-			for(int c=col;c<cols;c++) {
-				TermPoint p = buffer[r][c];
-				newPoint(p);
+		for (int r=row;r<rows;r++) {
+			for (int c=col;c<cols;c++) {
+				buffer[r][c].clear();
 			}
 		}
 	}
@@ -131,20 +120,20 @@ public class TermWindow {
 	public void hline(char c, int n) {
 		//Log.d("Angband","TermWindow.hline ("+row+","+col+") "+n);
 		int x = Math.min(cols,n+col);
-		for(int i=col;i<x;i++) {
+		for (int i=col;i<x;i++) {
 			addch(c);
 		}
 	}
 
 	public void move(int row, int col) {
-		if (col>-1 && col<cols && row>-1 & row<rows) {
+		if (col >= 0 && col < cols && row >= 0 & row<rows) {
 			this.col = col;
 			this.row = row;
 		}
 	}
 
 	public int inch() {
-		return buffer[this.row][this.col].Char;
+		return buffer[this.row][this.col].ch;
 	}
 
 	public int mvinch(int row, int col) {
@@ -188,15 +177,15 @@ public class TermWindow {
 			int iy1 = Math.min(sy1,dy1);
 
 			// blit the ascii
-			for(int r=iy0;r<=iy1;r++) {
-				for(int c=ix0;c<=ix1;c++) {
+			for (int r=iy0;r<=iy1;r++) {
+				for (int c=ix0;c<=ix1;c++) {
 					TermPoint p1 = wsrc.buffer[r-wsrc.begin_y][c-wsrc.begin_x];
 					TermPoint p2 = buffer[r-begin_y][c-begin_x];
-					if (p2.Char != p1.Char ||
+					if (p2.ch != p1.ch ||
 							p2.fgColor != p1.fgColor ||
 							p2.bgColor != p2.bgColor) {
 						p2.isDirty = true;
-						p2.Char = p1.Char;
+						p2.ch = p1.ch;
 						p2.bgColor = p1.bgColor;
 						p2.fgColor = p1.fgColor;
 					}
@@ -206,8 +195,8 @@ public class TermWindow {
 	}
 
 	public void touch() {
-		for(int r=0;r<rows;r++) {
-			for(int c=0;c<cols;c++) {
+		for (int r=0;r<rows;r++) {
+			for (int c=0;c<cols;c++) {
 				TermPoint p = buffer[r][c];
 				p.isDirty = true;
 			}
@@ -244,11 +233,11 @@ public class TermWindow {
 			if (c > 19) {
 				TermPoint p = buffer[row][col];
 			
-				if (p.Char != c ||
+				if (p.ch != c ||
 						p.fgColor != cur_color ||
 						p.bgColor != cur_bg_color) {
 					p.isDirty = true;
-					p.Char = c;
+					p.ch = c;
 					p.fgColor = cur_color;
 					p.bgColor = cur_bg_color;
 				}
@@ -259,7 +248,7 @@ public class TermWindow {
 				//Log.d("Angband","TermWindow.addch - tab expand");				
 				int ss = col % 8;
 				if (ss==0) ss=8;
-				for(int i=0;i<ss;i++) addch(' ');
+				for (int i=0;i<ss;i++) addch(' ');
 			}
 			else {
 				//Log.d("Angband","TermWindow.addch - invalid character: "+(int)c);
@@ -288,8 +277,8 @@ public class TermWindow {
 	}
 
 	public void scroll() {
-		for(int r=1;r<rows;r++) {
-			for(int c=0;c<cols;c++) {
+		for (int r=1;r<rows;r++) {
+			for (int c=0;c<cols;c++) {
 				buffer[r-1][c] = buffer[r][c];
 			}
 		}
