@@ -1,0 +1,45 @@
+Only in original/angband-4.0.5/: .gitignore
+Only in extsrc/lib: .DS_Store
+Only in extsrc/lib/icons: .DS_Store
+Only in original/angband-4.0.5/lib/icons: att-256.png
+diff -ur original/angband-4.0.5/src/config.h extsrc/src/config.h
+--- original/angband-4.0.5/src/config.h	2016-04-17 14:12:47.000000000 +0100
++++ extsrc/src/config.h	2016-11-05 06:09:09.000000000 +0000
+@@ -68,7 +68,7 @@
+  * OPTION: Create and use a hidden directory in the users home directory
+  * for storing pref files and character dumps.
+  */
+-#if defined(UNIX) && !defined(MACH_O_CARBON) && !defined(PRIVATE_USER_PATH)
++#if defined(UNIX) && !defined(MACH_O_CARBON) && !defined(PRIVATE_USER_PATH) && !defined(ANDROID)
+ # define PRIVATE_USER_PATH "~/.angband"
+ #endif
+ 
+diff -ur original/angband-4.0.5/src/init.c extsrc/src/init.c
+--- original/angband-4.0.5/src/init.c	2016-04-17 14:12:47.000000000 +0100
++++ extsrc/src/init.c	2016-11-05 06:59:55.000000000 +0000
+@@ -340,7 +340,6 @@
+ void init_file_paths(const char *configpath, const char *libpath, const char *datapath)
+ {
+ 	char buf[1024];
+-	char *userpath = NULL;
+ 
+ 	/*** Free everything ***/
+ 
+@@ -409,15 +408,9 @@
+ 	/* Build the path to the user info directory */
+ 	BUILD_DIRECTORY_PATH(ANGBAND_DIR_INFO, ANGBAND_DIR_USER, "info");
+ 
+-#ifdef USE_PRIVATE_PATHS
+-	userpath = ANGBAND_DIR_USER;
+-#else /* !USE_PRIVATE_PATHS */
+-	userpath = (char *)datapath;
+-#endif /* USE_PRIVATE_PATHS */
+-
+ 	/* Build the path to the score and save directories */
+-	BUILD_DIRECTORY_PATH(ANGBAND_DIR_SCORES, userpath, "scores");
+-	BUILD_DIRECTORY_PATH(ANGBAND_DIR_SAVE, userpath, "save");
++	BUILD_DIRECTORY_PATH(ANGBAND_DIR_SCORES, ANGBAND_DIR_USER, "scores");
++	BUILD_DIRECTORY_PATH(ANGBAND_DIR_SAVE, ANGBAND_DIR_USER, "save");
+ 
+ #undef BUILD_DIRECTORY_PATH
+ }
