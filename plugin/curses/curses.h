@@ -97,11 +97,6 @@ int noise(void);
 void angdroid_quit(const char*);
 void angdroid_warn(const char*);
 
-#ifdef USE_MY_STR
-size_t my_strcpy(char *, const char *, size_t);
-size_t my_strcat(char *, const char *, size_t);
-#endif
-
 /* game must implement these */
 void angdroid_process_argv(int, const char*);
 void angdroid_main(void);
