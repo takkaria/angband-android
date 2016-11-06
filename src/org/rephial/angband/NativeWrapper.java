@@ -15,6 +15,7 @@ public class NativeWrapper {
 	private String display_lock = "lock";
 
 	// Call native methods from library
+	native int gameSizeChange(int rows, int cols);
 	native void gameStart(String pluginPath, int argc, String[] argv);
 	native int gameQueryInt(int argc, String[] argv);
 	native String gameQueryString(int argc, String[] argv);

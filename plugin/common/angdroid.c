@@ -311,6 +311,15 @@ static errr Term_pict_android(int x, int y, int n, const int *ap, const wchar_t 
 }
 
 
+/*
+ * Hacky hook for Angdroid
+ */
+void Term_resize_android(int rows, int cols)
+{
+	Term_resize(cols, rows);
+}
+
+
 /*** Internal Functions ***/
 
 
@@ -389,7 +398,6 @@ static void hook_plog(const char* str)
 	angdroid_warn(str);
 }
 
-
 /*
  * Hook to tell the user something, and then quit
  */
@@ -418,6 +426,8 @@ errr init_android(void)
 		/* Link */
 		term_data_link(i);
 	}
+
+	set_resize_hook(Term_resize_android);
 
 	/* Success */
 	return 0;

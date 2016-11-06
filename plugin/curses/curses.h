@@ -6,9 +6,6 @@
 
 #define COLOR_PAIR(x) (x)
 
-#define LINES 24
-#define COLS 80
-
 #define LOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, "Angband", __VA_ARGS__)
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG  , "Angband", __VA_ARGS__)
 #define LOGI(...) __android_log_print(ANDROID_LOG_INFO   , "Angband", __VA_ARGS__)
@@ -93,6 +90,8 @@ int init_pair(int, int, int);
 int angdroid_getch(int v);
 int flushinp(void);
 int noise(void);
+
+void set_resize_hook(void (*new)(int rows, int cols));
 
 void angdroid_quit(const char*);
 void angdroid_warn(const char*);

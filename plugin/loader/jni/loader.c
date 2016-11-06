@@ -17,7 +17,7 @@
 #define LOG(msg) (__android_log_write(ANDROID_LOG_DEBUG, "Angband", (msg)));
 
 void( * angdroid_gameStart ) (JNIEnv*, jobject, jint, jobjectArray) = NULL; 
-jint( * angdroid_gameQueryRedraw ) (JNIEnv*, jobject, jint, jint, jint, jint) = NULL;
+void( * angdroid_gameSizeChange ) (JNIEnv *env1, jobject obj1, jint rows, int cols) = NULL;
 jint( * angdroid_gameQueryInt ) (JNIEnv*, jobject, jint, jobjectArray) = NULL;
 jstring( * angdroid_gameQueryString ) (JNIEnv*, jobject, jint, jobjectArray) = NULL;
 
@@ -30,7 +30,7 @@ static jclass NativeWrapperClass;
 static jobject NativeWrapperObj;
 static jmethodID NativeWrapper_onGameExit;
 
-void gameStart
+JNIEXPORT void JNICALL Java_org_rephial_angband_NativeWrapper_gameStart
 (JNIEnv *env1, jobject obj1, jstring pluginPath, jint argc, jobjectArray argv)
 {
 	//LOGD("loader.startGame.syncwait");
@@ -86,6 +86,7 @@ void gameStart
 
 	// clear pointers
 	handle = NULL;
+	angdroid_gameSizeChange = NULL;
 	angdroid_gameQueryInt = NULL;
 	angdroid_gameQueryString = NULL;
 
@@ -100,19 +101,13 @@ void gameStart
 	//LOGD("loader.return");
 }
 
-JNIEXPORT void JNICALL Java_org_rephial_angband_NativeWrapper_gameStart
-(JNIEnv *env1, jobject obj1, jstring pluginPath, jint argc, jobjectArray argv)
-{
-	gameStart(env1,obj1,pluginPath,argc,argv);
-}
-
 JNIEXPORT jstring JNICALL Java_org_rephial_angband_NativeWrapper_gameQueryString
   (JNIEnv *env1, jobject obj1, jint argc, jobjectArray argv)
 {
 	return (jstring)0; // null indicates error
 }
 
-jint gameQueryInt
+JNIEXPORT jint JNICALL Java_org_rephial_angband_NativeWrapper_gameQueryInt
 (JNIEnv *env1, jobject obj1, jint argc, jobjectArray argv)
 {
 	jint result = -1; // -1 indicates error
@@ -140,8 +135,31 @@ jint gameQueryInt
 	return result;
 }
 
-JNIEXPORT jint JNICALL Java_org_rephial_angband_NativeWrapper_gameQueryInt
-(JNIEnv *env1, jobject obj1, jint argc, jobjectArray argv)
+JNIEXPORT jint JNICALL Java_org_rephial_angband_NativeWrapper_gameSizeChange
+(JNIEnv *env1, jobject obj1, jint rows, jint cols)
 {
-	return gameQueryInt(env1,obj1,argc,argv);
+	jint result = -1; // -1 indicates error
+
+	// begin synchronize
+	pthread_mutex_lock (&muQuery);
+
+	if (handle) {
+		if (!angdroid_gameSizeChange) {
+			angdroid_gameSizeChange = dlsym(handle, "angdroid_gameSizeChange");
+		}
+
+		if (angdroid_gameSizeChange) {
+			angdroid_gameSizeChange(env1, obj1, rows, cols);
+			result = 0;
+		} else {
+			LOGE("dlsym failed on angdroid_gameSizeChange");
+		}
+	} else {
+		LOGE("dlopen failed -- angdroid_gameSizeChange");
+	}
+
+	// end synchronize
+	pthread_mutex_unlock (&muQuery);
+
+	return result;
 }

@@ -465,6 +465,20 @@ void angdroid_warn(const char* msg) {
 	}
 }
 
+void (*resize_hook)(int rows, int cols);
+
+void set_resize_hook(void (*new)(int rows, int cols)) {
+	resize_hook = new;
+}
+
+JNIEXPORT void JNICALL angdroid_gameSizeChange
+(JNIEnv *env1, jobject obj1, jint rows, int cols)
+{
+	if (resize_hook) {
+		resize_hook(rows, cols);
+	}
+}
+
 JNIEXPORT void JNICALL angdroid_gameStart
 (JNIEnv *env1, jobject obj1, jint argc, jobjectArray argv)
 {
