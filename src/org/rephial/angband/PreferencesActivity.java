@@ -3,7 +3,7 @@
  * Purpose: Preferences activity for Android application
  *
  * Copyright (c) 2009 David Barr, Sergey Belinsky
- * 
+ *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
  *
@@ -27,9 +27,10 @@ import android.view.WindowManager;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 import android.preference.PreferenceCategory;
+import android.preference.ListPreference;
 
 public class PreferencesActivity
-	extends PreferenceActivity implements OnSharedPreferenceChangeListener {    
+	extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,6 @@ public class PreferencesActivity
 
 		getPreferenceManager().setSharedPreferencesName(Preferences.NAME);
 
-		// Load the preferences from an XML resource
 		addPreferencesFromResource(R.xml.preferences);
 	}
 
@@ -48,8 +48,7 @@ public class PreferencesActivity
 		setSummaryAll(getPreferenceScreen());
 		getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
 
-		SharedPreferences pref = getSharedPreferences(Preferences.NAME,
-				MODE_PRIVATE);
+		SharedPreferences pref = getSharedPreferences(Preferences. NAME,MODE_PRIVATE);
 
 		if (pref.getBoolean(Preferences.KEY_FULLSCREEN, true)) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -59,16 +58,16 @@ public class PreferencesActivity
 	}
 
 	@Override protected void onPause() {
-		super.onPause(); 
+		super.onPause();
 		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-	} 
+	}
 
-	private void setSummaryAll(PreferenceScreen pScreen) {        
+	private void setSummaryAll(PreferenceScreen pScreen) {
 		for (int i = 0; i < pScreen.getPreferenceCount(); i++) {
-            Preference pref = pScreen.getPreference(i);            
+			Preference pref = pScreen.getPreference(i);
 			setSummaryPref(pref);
 		}
-	} 
+	}
 
 	public void setSummaryPref(Preference pref) {
 		if (pref == null) return;
@@ -76,10 +75,10 @@ public class PreferencesActivity
 		String key = pref.getKey();
 		if (key == null) key = "";
 
-		if (pref instanceof KeyMapPreference) {                
-			KeyMapPreference kbPref = (KeyMapPreference) pref;     
+		if (pref instanceof KeyMapPreference) {
+			KeyMapPreference kbPref = (KeyMapPreference) pref;
 			String desc = kbPref.getDescription();
-			pref.setSummary(desc); 
+			pref.setSummary(desc);
 		}
 		else if (pref instanceof PreferenceCategory) {
 			PreferenceCategory prefCat = (PreferenceCategory)pref;
@@ -89,32 +88,36 @@ public class PreferencesActivity
 			}
 		}
 		else if (pref instanceof ProfileListPreference) {
-			ProfileListPreference plPref = (ProfileListPreference) pref;     
+			ProfileListPreference plPref = (ProfileListPreference) pref;
 			String desc = plPref.getDescription();
-			pref.setSummary(desc); 
-		} 
-		else if (pref instanceof ProfileCheckBoxPreference ) {
-			ProfileCheckBoxPreference pcPref = (ProfileCheckBoxPreference) pref;     
-			if (key.compareTo(Preferences.KEY_SKIPWELCOME)==0) {
+			pref.setSummary(desc);
+		}
+		else if (pref instanceof ProfileCheckBoxPreference) {
+			ProfileCheckBoxPreference pcPref = (ProfileCheckBoxPreference) pref;
+			if (key.compareTo(Preferences.KEY_SKIPWELCOME) == 0) {
 				pcPref.setChecked(Preferences.getActiveProfile().getSkipWelcome());
 			}
-		} 
+		}
 		else if (pref instanceof PreferenceScreen) {
-			setSummaryAll((PreferenceScreen) pref); 
-		} 
-		else if (key.compareTo(Preferences.KEY_GAMEPROFILE)==0) {
+			setSummaryAll((PreferenceScreen) pref);
+		}
+		else if (key.compareTo(Preferences.KEY_GAMEPROFILE) == 0) {
 			pref.setSummary(Preferences.getActiveProfile().getName());
-		} 
+		}
+		else if (key.compareTo(Preferences.KEY_CENTERTAP) == 0) {
+			ListPreference p = (ListPreference) pref;
+			pref.setSummary(p.getEntry());
+		}
 	}
 
 	public void	onSharedPreferenceChanged(SharedPreferences
-										  sharedPreferences, String key) { 		
-		if (key.compareTo(Preferences.KEY_ACTIVEPROFILE)==0 
+										  sharedPreferences, String key) {
+		if (key.compareTo(Preferences.KEY_ACTIVEPROFILE)==0
 			|| key.compareTo(Preferences.KEY_PROFILES)==0) {
-			setSummaryAll(getPreferenceScreen());			
+			setSummaryAll(getPreferenceScreen());
 		}
 		else {
-			Preference pref = findPreference(key); 
+			Preference pref = findPreference(key);
 			setSummaryPref(pref);
 		}
 	}

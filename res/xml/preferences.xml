@@ -168,10 +168,10 @@
 	   android:title="@string/preferences_enabletouch_title"
 	   android:summary="@string/preferences_enabletouch_summary" />
 	<ListPreference
-	   android:title="Center screen tap"
+	   android:title="Center screen tap action"
 	   android:summary="Select functionality for center screen tap"
 	   android:key="angband.centerscreentap"
-	   android:defaultValue="Space"
+	   android:defaultValue="CenterPlayer"
 	   android:dependency="angband.enabletouch"
 	   android:entries="@array/virtKeyActionDescriptions"
 	   android:entryValues="@array/virtKeyActions"/>

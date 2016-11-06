@@ -29,6 +29,7 @@ final public class Preferences {
 	static final String KEY_ORIENTATION = "angband.orientation";
 
 	static final String KEY_ENABLETOUCH = "angband.enabletouch";
+	static final String KEY_CENTERTAP = "angband.centerscreentap";
 	static final String KEY_PORTRAITKB = "angband.portraitkb";
 	static final String KEY_LANDSCAPEKB = "angband.landscapekb";
 	static final String KEY_PORTRAITFONTSIZE = "angband.portraitfontsize";
