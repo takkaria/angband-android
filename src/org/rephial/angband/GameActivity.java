@@ -101,16 +101,7 @@ public class GameActivity extends Activity {
 			}
 		};
 
-		StatPublisher.start(this);
-
 		rebuildViews();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-
-		StatPublisher.stop(this);
 	}
 
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,12 +124,6 @@ public class GameActivity extends Activity {
 			startActivity(intent);
 			break;
 		case '3':
-			dialog.ShowScoreEntry();
-			break;
-		case '4':
-			dialog.ShowScoreLeaderboards();
-			break;
-		case '5':
 			finish();
 			break;
 		}

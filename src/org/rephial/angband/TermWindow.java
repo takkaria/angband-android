@@ -6,18 +6,17 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class TermWindow {
-
-
 	public static class ColorPair {
 		public int fColor;
 		public int bColor;
-		public ColorPair(int f,int b) {this.fColor = f; this.bColor = b;}
+		public ColorPair(int f, int b) {this.fColor = f; this.bColor = b;}
 	}
-	public static Map<Integer,ColorPair> pairs = new HashMap<Integer,ColorPair>(); 
-	public static Map<Integer,Integer> color_table = new HashMap<Integer, Integer>(); 
+
+	public static Map<Integer,ColorPair> pairs = new HashMap<Integer,ColorPair>();
+	public static Map<Integer,Integer> color_table = new HashMap<Integer, Integer>();
 	public static int TERM_BLACK = 0xFF000000;
 	public static int TERM_WHITE = 0xFFFFFFFF;
-	public static ColorPair defaultColor = new ColorPair(TERM_WHITE,TERM_BLACK);
+	public static ColorPair defaultColor = new ColorPair(TERM_WHITE, TERM_BLACK);
 
 	public class TermPoint {
 		public char ch = ' ';
@@ -33,7 +32,7 @@ public class TermWindow {
 			fgColor = 0;
 		}
 	}
-	public TermPoint[][] buffer = null; 
+	public TermPoint[][] buffer = null;
 
 	public boolean allDirty = false;
 	public boolean cursor_visible;
@@ -48,18 +47,32 @@ public class TermWindow {
 	public int begin_x = 0;
 
 	public TermWindow(int rows, int cols, int begin_y, int begin_x) {
-		if (cols == 0) this.cols = Preferences.cols;
-		else this.cols = cols;
-		if (rows == 0) this.rows = Preferences.rows;
-		else this.rows = rows;
+		this.cols = cols == 0 ? Preferences.cols : cols;
+		this.rows = rows == 0 ? Preferences.rows : rows;
+
 		this.begin_y = begin_y;
 		this.begin_x = begin_x;
+
 		buffer = new TermPoint[this.rows][this.cols];
-		for (int r=0;r<this.rows;r++) {
-			for (int c=0;c<this.cols;c++) {
+		for (int r = 0; r < this.rows; r++) {
+			for (int c = 0; c < this.cols; c++) {
 				buffer[r][c] = new TermPoint();
 			}
 		}
+	}
+
+	public void resize(int rows, int cols) {
+		this.cols = cols;
+		this.rows = rows;
+
+		TermPoint[][] cur = new TermPoint[this.rows][this.cols];
+		for (int r = 0; r < this.rows; r++) {
+			for (int c = 0; c < this.cols; c++) {
+				cur[r][c] = new TermPoint();
+			}
+		}
+
+		this.buffer = cur;
 	}
 
 	public static void init_color(int c, int rgb) {

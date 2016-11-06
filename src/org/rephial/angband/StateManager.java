@@ -64,13 +64,16 @@ public class StateManager {
 		h = newWin(0,0,0,0);
 		stdscr = getWin(h);
 	}
+
 	public TermWindow getWin(int handle) {
 		TermWindow w = termwins.get(handle);
 		return w;
 	}
+
 	public void delWin(int handle) {
 		termwins.remove(handle);
 	}
+
 	public int newWin(int nlines, int ncols, int begin_y, int begin_x) {
 		int h = termWinNext;
 		termwins.put(h,new TermWindow(nlines,ncols,begin_y,begin_x));

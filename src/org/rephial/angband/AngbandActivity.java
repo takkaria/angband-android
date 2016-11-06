@@ -93,18 +93,6 @@ public class AngbandActivity extends Activity {
 		checkInstall();
 	}
 
-	@Override
-	public void onStop() {
-		super.onStop();
-		StatPublisher.stop(this);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		StatPublisher.start(this);
-	}
-
 	public synchronized void checkInstall() {
 		final Activity splash = this;
 		Thread splashTread = new Thread() {

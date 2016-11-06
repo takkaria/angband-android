@@ -4,22 +4,21 @@ import android.os.Handler;
 import android.os.Message;
 
 import android.util.Log;
-	
+
 public class GameThread implements Runnable {
 
-	public enum Request{
-		StartGame
-			,StopGame
-			,SaveGame
-			,OnGameExit;
+	public enum Request {
+		StartGame,
+		StopGame
+		SaveGame
+		OnGameExit;
 
-		public static Request convert(int value)
-		{
+		public static Request convert(int value) {
 			return Request.class.getEnumConstants()[value];
 		}
     };
 
-	/* game thread state */	
+	/* game thread state */
 	private Thread thread = null;
 	private boolean game_thread_running = false;
 	private boolean game_fully_initialized = false;
@@ -29,7 +28,7 @@ public class GameThread implements Runnable {
 	private boolean plugin_change = false;
 	private NativeWrapper nativew = null;
 	private StateManager state = null;
-	
+
 	public GameThread(StateManager s, NativeWrapper nw) {
 		nativew = nw;
 		state = s;
@@ -37,18 +36,18 @@ public class GameThread implements Runnable {
 
 	public synchronized void send(Request rq) {
 		switch (rq) {
-		case StartGame:
-			start();
-			break;
-		case StopGame:
-			stop();
-			break;
-		case SaveGame:
-			save();
-			break;
-		case OnGameExit:
-			onGameExit();
-			break;
+			case StartGame:
+				start();
+				break;
+			case StopGame:
+				stop();
+				break;
+			case SaveGame:
+				save();
+				break;
+			case OnGameExit:
+				onGameExit();
+				break;
 		}
 	}
 
@@ -58,22 +57,19 @@ public class GameThread implements Runnable {
 		// sanity checks: thread must not already be running
 		// and we must have a valid canvas to draw upon.
 		//			already_running = game_thread_running;
-		//	already_initialized = game_fully_initialized;	  
+		//	already_initialized = game_fully_initialized;
 
 
 		if (state.fatalError) {
-
 			// don't bother restarting here, we are going down.
 			Log.d("Angband","start.fatalError is set");
-		}
-		else if (game_thread_running) {
-
+		} else if (game_thread_running) {
 			/* this is an onResume event */
 			if (game_fully_initialized &&
-				running_plugin != null && 
+				running_plugin != null &&
 				( running_plugin.compareTo(Preferences.getActivePluginName())!=0 ||
 				  running_profile.compareTo(Preferences.getActiveProfile().getName())!=0 ) ) {
-			
+
 				/* plugin or profile has been changed */
 
 				Log.d("Angband","start.plugin changed");
@@ -83,15 +79,14 @@ public class GameThread implements Runnable {
 			else {
 				//Log.d("Angband","startBand.redrawing");
 				state.nativew.resize();
-			}			
-		}
-		else {
-			
+			}
+		} else {
+
 			/* time to start angband */
 
 			/* notify wrapper game is about to start */
 			nativew.onGameStart();
-			
+
  			/* initialize keyboard buffer */
 			state.resetKeyBuffer();
 
@@ -105,7 +100,7 @@ public class GameThread implements Runnable {
 	}
 
 	private void stop() {
-		// signal keybuffer to send quit command to angband 
+		// signal keybuffer to send quit command to angband
 		// (this is when the user chooses quit or the app is pausing)
 
 		//Log.d("Angband","GameThread.Stop()");
@@ -143,39 +138,39 @@ public class GameThread implements Runnable {
 			Log.d("Angband","save().no thread");
 			return;
 		}
-	 
+
 		state.signalSave();
 	}
 
 	private void onGameExit() {
 		boolean local_restart = false;
-			
+
 		Log.d("Angband","GameThread.onGameExit()");
 		game_thread_running = false;
 		game_fully_initialized = false;
 
 		// if game exited normally, restart!
-		local_restart 
-			= game_restart 
-			= ((!state.getSignalGameExit() || plugin_change) 
+		local_restart
+			= game_restart
+			= ((!state.getSignalGameExit() || plugin_change)
 			   && !state.fatalError);
 
-		if	(local_restart) 
+		if	(local_restart)
 			state.handler.sendEmptyMessage(AngbandDialog.Action.StartGame.ordinal());
 	}
 
 	public void setFullyInitialized() {
-		//if (!game_fully_initialized) 
+		//if (!game_fully_initialized)
 		//	Log.d("Angband","game is fully initialized");
 
-		game_fully_initialized = true;		
+		game_fully_initialized = true;
 	}
 
-	public void run() {		
+	public void run() {
 		if (game_restart) {
 			game_restart = false;
 			/* this hackery is no longer needed after
-				serializing all access to GameThread 
+				serializing all access to GameThread
 				through the sync'd send() method and
 			 	use of handlers to initiate async actions.  */
 			/*
@@ -197,9 +192,9 @@ public class GameThread implements Runnable {
 
 		/* game is not running, so start it up */
 		nativew.gameStart(
-				  pluginPath, 
-				  2, 
-				  new String[]{
+				  pluginPath,
+				  2,
+				  new String[] {
 					  Preferences.getAngbandFilesDirectory(),
 					  Preferences.getActiveProfile().getSaveFile()
 				  }

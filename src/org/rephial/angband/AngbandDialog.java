@@ -11,20 +11,17 @@ public class AngbandDialog {
 	private GameActivity activity;
 	private StateManager state;
 	private ProgressDialog progressDialog = null;
-	private ScorePublisher score = null;
 
 	public enum Action {
-			OpenContextMenu
-			,GameFatalAlert
-			,GameWarnAlert
-			,StartGame
-			,OnGameExit
-			,Toast
-			,ToggleKeyboard,
-			Score;
+		OpenContextMenu,
+		GameFatalAlert,
+		GameWarnAlert,
+		StartGame,
+		OnGameExit,
+		Toast,
+		ToggleKeyboard;
 
-		public static Action convert(int value)
-		{
+		public static Action convert(int value) {
 			return Action.class.getEnumConstants()[value];
 		}
     };
@@ -32,17 +29,16 @@ public class AngbandDialog {
 	AngbandDialog(GameActivity a, StateManager s) {
 		activity = a;
 		state = s;
-		score = new ScorePublisher(activity);
 	}
 
 	public void HandleMessage(Message msg) {
-		//Log.d("Angband","handleMessage: "+msg.what);		
+		//Log.d("Angband","handleMessage: "+msg.what);
 
 		switch (Action.convert(msg.what)) {
 		case OpenContextMenu: // display context menu
 			activity.openContextMenu();
 			break;
-		case ToggleKeyboard: 
+		case ToggleKeyboard:
 			activity.toggleKeyboard();
 			break;
 		case GameFatalAlert: // fatal error from angband (native side)
@@ -57,11 +53,8 @@ public class AngbandDialog {
 		case OnGameExit: // angband is exiting
 			state.gameThread.send(GameThread.Request.OnGameExit);
 			break;
-		case Toast: 
+		case Toast:
 			Toast.makeText(activity, (String)msg.obj, Toast.LENGTH_SHORT).show();			
-			break;
-		case Score:
-			score.Publish((ScoreContainer)msg.obj);
 			break;
 		}
 	}
@@ -100,15 +93,5 @@ public class AngbandDialog {
 			}
 		).show();
 		return 0;
-	}
-
-	public void ShowScoreEntry()
-	{
-		score.ShowEntry();
-	}
-
-	public void ShowScoreLeaderboards()
-	{
-		score.ShowLeaderboards();
 	}
 }

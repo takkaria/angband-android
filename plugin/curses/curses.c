@@ -50,14 +50,9 @@ static jmethodID NativeWrapper_curs_set;
 static jmethodID NativeWrapper_flushinp;
 static jmethodID NativeWrapper_getcury;
 static jmethodID NativeWrapper_getcurx;
-// #ifdef ANGDROID_NIGHTLY
 static jmethodID NativeWrapper_wctomb;
 static jmethodID NativeWrapper_mbstowcs;
 static jmethodID NativeWrapper_wcstombs;
-// #endif
-static jmethodID NativeWrapper_score_start;
-static jmethodID NativeWrapper_score_detail;
-static jmethodID NativeWrapper_score_submit;
 
 void (*angdroid_quit_hook)(void) = NULL;
 

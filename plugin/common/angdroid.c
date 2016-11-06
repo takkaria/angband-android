@@ -317,6 +317,7 @@ static errr Term_pict_android(int x, int y, int n, const int *ap, const wchar_t 
 void Term_resize_android(int rows, int cols)
 {
 	Term_resize(cols, rows);
+	LOGD("Got the resize signal here, loud and clear. %d,%d", rows, cols);
 }
 
 

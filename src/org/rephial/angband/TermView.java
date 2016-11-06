@@ -52,8 +52,8 @@ public class TermView extends View implements OnGestureListener {
 	Paint back;
 	Paint cursor;
 
-	//	int row = 0;
-	//  int col = 0;
+	public int rows = 0;
+	public int cols = 0;
 
 	public int canvas_width = 0;
 	public int canvas_height = 0;
@@ -86,9 +86,10 @@ public class TermView extends View implements OnGestureListener {
 
 	protected void initTermView(Context context) {
 		_context = context;
+
 		fore = new Paint();
 		fore.setTextAlign(Paint.Align.LEFT);
-		if ( isHighRes() ) fore.setAntiAlias(true);
+		if (isHighRes()) fore.setAntiAlias(true);
 		setForeColor(Color.WHITE);
 
 		back = new Paint();
@@ -108,76 +109,63 @@ public class TermView extends View implements OnGestureListener {
 
 	protected void onDraw(Canvas canvas) {
 		if (bitmap != null) {
+
 			canvas.drawBitmap(bitmap, 0, 0, null);
 
-			int x = state.stdscr.col * (char_width);
-			int y = (state.stdscr.row + 1) * char_height;
-
-			// due to font "scrunch", cursor is sometimes a bit too big
-			int cl = Math.max(x,0);
-			int cr = Math.min(x+char_width,canvas_width-1);
-			int ct = Math.max(y-char_height,0);
-			int cb = Math.min(y,canvas_height-1);
+			// The Great DEBUG CIRCLE
+			Paint p = new Paint();
+			p.setARGB(128, 128, 128, 128);
+			p.setStrokeWidth(10);
+			canvas.drawCircle(bitmap.getWidth()/2, bitmap.getHeight()/2, bitmap.getWidth()/4, p);
 
 			if (state.stdscr.cursor_visible) {
+				int x = state.stdscr.col * (char_width);
+				int y = (state.stdscr.row + 1) * char_height;
+
+				// due to font "scrunch", cursor is sometimes a bit too big
+				int cl = Math.max(x,0);
+				int cr = Math.min(x+char_width,canvas_width-1);
+				int ct = Math.max(y-char_height,0);
+				int cb = Math.min(y,canvas_height-1);
+
 				canvas.drawRect(cl, ct, cr, cb, cursor);
 			}
 		}
 	}
 
 	public void computeCanvasSize() {
-		canvas_width = Preferences.cols*char_width;
-	    canvas_height = Preferences.rows*char_height;
+		int width = getWidth();
+		int height = getHeight();
+		Log.d("Angband","screensize h="+height+",w="+width);
+
+		if (width != canvas_width || height != canvas_height) {
+			canvas_width = width;
+			canvas_height = height;
+			Log.d("Angband","createBitmap "+canvas_width+","+canvas_height);
+			bitmap = Bitmap.createBitmap(canvas_width, canvas_height, Bitmap.Config.RGB_565);
+			canvas = new Canvas(bitmap);
+
+			Log.d("Angband","computeCanvasSize. " +
+				", height/width = " + char_height + "," + char_width +
+				"canvas = " + canvas_height + "," + canvas_width);
+
+			rows = canvas_height / char_height;
+			cols = canvas_width / char_width;
+		}
 	}
 
 	protected void setForeColor(int a) {
-		fore.setColor(a);			
+		fore.setColor(a);
 	}
+
 	protected void setBackColor(int a) {
-		back.setColor(a);			
+		back.setColor(a);
 	}
 
 	public void autoSizeFontByHeight(int maxHeight) {
-		if (maxHeight == 0) maxHeight = getMeasuredHeight();
-		setFontFace();
-
-		// HACK -- keep 480x320 fullscreen as-is
-		if (!isHighRes()) {
-			setFontSizeLegacy();
-		}
-		else {
-			font_text_size = 6;
-			do {
-				font_text_size += 1;
-				setFontSize(font_text_size, false);
-			} while (char_height*Preferences.rows <= maxHeight);
-		
-			font_text_size -= 1;
-			setFontSize(font_text_size);
-		}
-		//Log.d("Angband","autoSizeFontHeight "+font_text_size);
 	}
 
 	public void autoSizeFontByWidth(int maxWidth) {
-		if (maxWidth == 0) maxWidth = getMeasuredWidth();
-		setFontFace();
-
-		// HACK -- keep 480x320 fullscreen as-is
-		if (!isHighRes()) {
-			setFontSizeLegacy();
-		}
-		else {
-			font_text_size = 6;
-			boolean success = false;
-			do {
-				font_text_size += 1;
-				success = setFontSize(font_text_size, false);		
-			} while (success && char_width*Preferences.cols <= maxWidth);
-
-			font_text_size -= 1;
-			setFontSize(font_text_size);
-		}
-		//Log.d("Angband","autoSizeFontWidth "+font_text_size+","+maxWidth);
 	}
 
 	public boolean isHighRes() {
@@ -185,8 +173,7 @@ public class TermView extends View implements OnGestureListener {
 		int maxWidth = display.getWidth();
 		int maxHeight = display.getHeight();
 
-		//Log.d("Angband","isHighRes "+maxHeight+","+maxWidth +","+ (Math.max(maxWidth,maxHeight)>480));
-		return Math.max(maxWidth,maxHeight)>480;
+		return Math.max(maxWidth,maxHeight) > 480;
 	}
 
 	private void setFontSizeLegacy() {
@@ -197,50 +184,60 @@ public class TermView extends View implements OnGestureListener {
 	}
 
 	private void setFontFace() {
-		if ( !isHighRes() ) {
+		if (!isHighRes()) {
 			tfTiny = Typeface.createFromAsset(getResources().getAssets(), "6x13.ttf");
 			fore.setTypeface(tfTiny);
-		}
-		else {
-			tfStd = Typeface.createFromAsset(getResources().getAssets(), "VeraMoBd.ttf"); 
-			//tfStd = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD);
+		} else {
+			tfStd = Typeface.createFromAsset(getResources().getAssets(), "VeraMoBd.ttf");
 			fore.setTypeface(tfStd);
-		}		
+		}
 	}
 
-	public void increaseFontSize() {
-		setFontSize(font_text_size+1);
+	public boolean increaseFontSize() {
+		return setFontSize(font_text_size + 1);
 	}
 
-	public void decreaseFontSize() {
-		setFontSize(font_text_size-1);
+	public boolean decreaseFontSize() {
+		return setFontSize(font_text_size - 1);
 	}
 
 	private boolean setFontSize(int size) {
-		return setFontSize(size,true);
+		return setFontSize(size, true);
 	}
+
 	private boolean setFontSize(int size, boolean persist) {
-		
 		setFontFace();
 
-		if (size < 6) {size = 6; return false;}
-		else if (size > 64) {size = 64; return false;}
+		if (size < 6) {
+			size = 6;
+			return false;
+		} else if (size > 64) {
+			size = 64;
+			return false;
+		} else {
+			font_text_size = size;
+			fore.setTextSize(font_text_size);
 
-		font_text_size = size;
+			if (persist) {
+				if (Preferences.isScreenPortraitOrientation()) {
+					Preferences.setPortraitFontSize(font_text_size);
+				} else {
+					Preferences.setLandscapeFontSize(font_text_size);
+				}
+			}
 
-		fore.setTextSize(font_text_size);		
-		
-		if (persist) {
-			if(Preferences.isScreenPortraitOrientation())
-				Preferences.setPortraitFontSize(font_text_size);
-			else
-				Preferences.setLandscapeFontSize(font_text_size);			
+			char_height = (int) Math.ceil(fore.getFontSpacing());
+			char_width = (int) fore.measureText("X", 0, 1);
+
+			Log.d("Angband","setFontSize. size = " + size +
+				", height/width = " + char_height + "," + char_width +
+				"canvas = " + canvas_height + "," + canvas_width);
+
+			rows = canvas_height / char_height;
+			cols = canvas_width / char_width;
+
+			return true;
 		}
- 
-		char_height = (int)Math.ceil(fore.getFontSpacing()); 
-		char_width = (int)fore.measureText("X", 0, 1);	
-		//Log.d("Angband","setSizeFont "+fore.measureText("X", 0, 1));
-		return true;
 	}
 
 	@Override
@@ -249,15 +246,15 @@ public class TermView extends View implements OnGestureListener {
 		int width = MeasureSpec.getSize(widthmeasurespec);
 
 		int fs = 0;
-		if(Preferences.isScreenPortraitOrientation())
+		if (Preferences.isScreenPortraitOrientation())
 			fs = Preferences.getPortraitFontSize();
 		else
 			fs = Preferences.getLandscapeFontSize();
 
-		if (fs == 0) 
+		if (fs == 0)
 			autoSizeFontByWidth(width);
 		else
-			setFontSize(fs, false);  
+			setFontSize(fs, false);
 
 		fore.setTextAlign(Paint.Align.LEFT);
 
@@ -265,86 +262,78 @@ public class TermView extends View implements OnGestureListener {
 		int minwidth = getSuggestedMinimumWidth();
 
 		setMeasuredDimension(width, height);
-		//Log.d("Angband","onMeasure "+canvas_width+","+canvas_height+";"+width+","+height);
+		Log.d("Angband","onMeasure "+canvas_width+","+canvas_height+";"+
+				"w/h:" + width + "," + height +
+				"mw/mh:" + minwidth + "," + minheight);
 	}
 
-	@Override 
+	@Override
 	public boolean onTouchEvent(MotionEvent me) {
 		return gesture.onTouchEvent(me);
 	}
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {	   
+
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 		int newscrollx = this.getScrollX() + (int)distanceX;
 		int newscrolly = this.getScrollY() + (int)distanceY;
-	
-		if(newscrollx < 0) 
-			newscrollx = 0;
-		if(newscrolly < 0) 
-			newscrolly = 0;
-		if(newscrollx >= canvas_width - getWidth())
-			newscrollx = canvas_width - getWidth() + 1;
-		if(newscrolly >= canvas_height - getHeight())
-		 	newscrolly = canvas_height - getHeight() + 1;
 
-		if (canvas_width <= getWidth()) newscrollx = 0; //this.getScrollX();
-		if (canvas_height <= getHeight()) newscrolly = 0; //this.getScrollY();		
+		if (newscrollx < 0)
+			newscrollx = 0;
+		if (newscrolly < 0)
+			newscrolly = 0;
+		if (newscrollx >= canvas_width - getWidth())
+			newscrollx = canvas_width - getWidth() + 1;
+		if (newscrolly >= canvas_height - getHeight())
+			newscrolly = canvas_height - getHeight() + 1;
+
+		if (canvas_width <= getWidth())
+			newscrollx = 0; //this.getScrollX();
+		if (canvas_height <= getHeight())
+			newscrolly = 0; //this.getScrollY();
 
 		scrollTo(newscrollx, newscrolly);
 
 		return true;
 	}
+
 	public boolean onDown(MotionEvent e) {
 		return true;
 	}
+
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 		return true;
 	}
+
 	public void onLongPress(MotionEvent e) {
 		handler.sendEmptyMessage(AngbandDialog.Action.OpenContextMenu.ordinal());
 	}
+
 	public void onShowPress(MotionEvent e) {
 	}
+
 	public boolean onSingleTapUp(MotionEvent event) {
-		if (!Preferences.getEnableTouch()) return false;
+		if (Preferences.getEnableTouch()) {
+			int x = (int) event.getX();
+			int y = (int) event.getY();
 
-		int x = (int) event.getX();
-		int y = (int) event.getY();
+			int c = (x * 3) / getWidth();
+			int r = (y * 3) / getHeight();
 
-		int r, c;
-		c = (x * 3) / getWidth();
-		r = (y * 3) / getHeight();
+			int key = (2 - r) * 3 + c + '1';
 
-		int key = (2 - r) * 3 + c + '1';
+			state.addDirectionKey(key);
 
-		state.addDirectionKey(key);
-			
-		return true;
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-		//Log.d("Angband", "onSizeChanged");
+		Log.d("Angband", "onSizeChanged");
 		super.onSizeChanged(w, h, oldw, oldh);
-		handler.sendEmptyMessage(AngbandDialog.Action.StartGame.ordinal());
-  	}
-
-	public boolean onGameStart() {
-
 		computeCanvasSize();
-
-		// sanity 
-		if (canvas_width == 0 || canvas_height == 0) return false;
-
-		//Log.d("Angband","createBitmap "+canvas_width+","+canvas_height);
-		bitmap = Bitmap.createBitmap(canvas_width, canvas_height, Bitmap.Config.RGB_565);
-		canvas = new Canvas(bitmap);		
-		/*
-		  canvas.setDrawFilter(new PaintFlagsDrawFilter(
-		  Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG | Paint.SUBPIXEL_TEXT_FLAG,0
-		  )); // this seems to have no effect, why?
-		*/		
-
-		state.currentPlugin = Plugins.Plugin.convert(Preferences.getActiveProfile().getPlugin());
-   		return true;
+		handler.sendEmptyMessage(AngbandDialog.Action.StartGame.ordinal());
 	}
 
 	public void drawPoint(int r, int c, char ch, int fcolor, int bcolor, boolean extendedErase) {
@@ -359,25 +348,20 @@ public class TermView extends View implements OnGestureListener {
 
 		setBackColor(bcolor);
 
-		canvas.drawRect(
-						x, 
-						y, 
-						x + char_width + (extendedErase ? 1 : 0), 
-						y + char_height + (extendedErase ? 1 : 0), 
-						back
-						);					
+		canvas.drawRect(x,
+				y,
+				x + char_width + (extendedErase ? 1 : 0),
+				y + char_height + (extendedErase ? 1 : 0),
+				back);
 
 		if (ch != ' ') {
 			String str = ch + "";
 
 			setForeColor(fcolor);
-
-			canvas.drawText (
-							 str,
-							 x, 
-							 y + char_height - fore.descent(), 
-							 fore
-							 );
+			canvas.drawText(str,
+					x,
+					y + char_height - fore.descent(),
+					fore);
 		}
 	}
 
@@ -400,7 +384,7 @@ public class TermView extends View implements OnGestureListener {
 
 	public void onPause() {
 		//Log.d("Angband","Termview.onPause()");
-		// this is the only guaranteed safe place to save state 
+		// this is the only guaranteed safe place to save state
 		// according to SDK docs
 		state.gameThread.send(GameThread.Request.SaveGame);
 	}

@@ -37,14 +37,16 @@ public class NativeWrapper {
 		return key;
 	}
 
-	//this is called from native thread just before exiting
+	// this is called from native thread just before exiting
 	public void onGameExit() {
 		state.handler.sendEmptyMessage(AngbandDialog.Action.OnGameExit.ordinal());
 	}
 
-	public boolean onGameStart() {
+	public void onGameStart() {
 		synchronized (display_lock) {
-			return term.onGameStart();
+			state.currentPlugin = Plugins.Plugin.convert(Preferences.getActiveProfile().getPlugin());
+			term.computeCanvasSize();
+			resize();
 		}
 	}
 
@@ -84,8 +86,12 @@ public class NativeWrapper {
 
 	public void resize() {
 		synchronized (display_lock) {
-			term.onGameStart(); // recalcs TermView canvas dimension
-			frosh(null);
+			TermWindow termwin = state.getWin(1);
+			Log.d("Angband","resize "+term.rows+","+term.cols);
+			if (termwin != null) {
+				termwin.resize(term.rows, term.cols);
+				gameSizeChange(term.rows, term.cols);
+			}
 		}
 	}
 
@@ -384,40 +390,5 @@ public class NativeWrapper {
 		Log.d("Angband","wcstombs: " + e);
 	    }
 	    return -1;
-    }
-
-    ScoreContainer curScore;
-
-    public void score_submit(final byte[] score, final byte[] level) {
-		if (curScore == null) curScore = new ScoreContainer();
-		curScore.score = 0.0;
-		curScore.level = 0;
-		try {
-			String strScore = new String(score, "UTF-8");
-			String strLevel = new String(level, "UTF-8");
-			//Log.d("Angband","score = \"" + strScore + "\"");
-
-			curScore.score = Double.parseDouble(strScore.trim());
-			curScore.level = Integer.parseInt(strLevel.trim());
-		} catch(java.io.UnsupportedEncodingException e) {
-			Log.d("Angband","score: " + e);
-		}
-		state.handler.sendMessage(state.handler.obtainMessage(AngbandDialog.Action.Score.ordinal(), 0, 0, curScore));
-    }
-
-    public void score_start() {
-	    curScore = new ScoreContainer();
-    }
-
-    public void score_detail(final byte[] name, final byte[] value) {
-		try {
-			String strName = new String(name, "UTF-8");
-			String strValue = new String(value, "UTF-8");
-			// Log.d("Angband","score detail: \"" + strName + "\" = \"" +
-			// 	  strValue + "\"");
-			curScore.map.put(strName, strValue.trim());
-		} catch(java.io.UnsupportedEncodingException e) {
-			Log.d("Angband","score: " + e);
-		}
     }
 }
