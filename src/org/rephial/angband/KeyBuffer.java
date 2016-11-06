@@ -261,6 +261,9 @@ public class KeyBuffer {
 		case Period:
 			add('.');
 			break;
+		case CenterPlayer:
+			add('@');
+			break;
 		case EnterKey:
 			add(state.getKeyEnter());
 			break;

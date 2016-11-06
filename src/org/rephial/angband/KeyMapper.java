@@ -122,7 +122,8 @@ public class KeyMapper {
 			ZoomIn,
 			ZoomOut,
 			BackspaceKey,
-			DeleteKey;
+			DeleteKey,
+			CenterPlayer;
 
 		public static KeyAction convert(int value)
 		{

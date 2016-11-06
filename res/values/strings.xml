@@ -79,6 +79,7 @@
 		<item>Virtual Keyboard</item>
 		<item>Zoom In</item>
 		<item>Zoom Out</item>
+        <item>Center player (@)</item>
 	</string-array>
 	<string-array name="virtKeyActions">
 		<item>None</item>
@@ -91,5 +92,6 @@
 		<item>VirtualKeyboard</item>
 		<item>ZoomIn</item>
 		<item>ZoomOut</item>
+        <item>CenterPlayer</item>
 	</string-array>
 </resources>
