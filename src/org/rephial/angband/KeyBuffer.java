@@ -73,7 +73,7 @@ public class KeyBuffer {
 
 	public void addDirection(int key) {
 		boolean rogueLike = (nativew.gameQueryInt(1,new String[]{"rl"})==1);
-		boolean alwaysRun = Preferences.getAlwaysRun();
+		boolean runningMode = state.getRunningMode();
 
 		if (rogueLike) {
 			switch(key) {
@@ -97,7 +97,7 @@ public class KeyBuffer {
 			performActionKeyUp(act);
 		}
 		else { // directional tap
-			if (alwaysRun && !ctrl_mod) { // let ctrl influence directionals, even with alwaysRun on
+			if (runningMode && !ctrl_mod) { // let ctrl influence directionals, even with running mode
 				if (shift_mod) {  // shift temporarily overrides always run
 					eat_shift = true;
 				}

@@ -28,6 +28,7 @@ public class AngbandKeyboardView extends KeyboardView
 
 	private boolean mSymbolic = false;
 	private boolean mControl = false;
+	private boolean mRunning = false;
 
 	final int TEXT_SIZE = 58;
 	final int LABEL_SIZE = 36;
@@ -49,7 +50,14 @@ public class AngbandKeyboardView extends KeyboardView
 
 	public void setControl(boolean on) {
 		mControl = on;
-		Log.d("Angband", "mcontrol " + on);
+	}
+
+	public void setRunning(boolean on) {
+		mRunning = on;
+	}
+
+	public boolean isRunning() {
+		return mRunning;
 	}
 
 	private String fixCase(CharSequence label) {
@@ -70,15 +78,15 @@ public class AngbandKeyboardView extends KeyboardView
 	 */
 	private void setState(Key key, Drawable keyBackground) {
 		int[] nativeStates = key.getCurrentDrawableState();
-		int[] newStates = { 0, 0, 0 };
+		int[] newStates = { 0, 0 };
 		int newLength = 0;
 
 		if ((mSymbolic && key.codes[0] == -2) ||
-				(mControl && key.codes[0] == -6)) {
+				(mControl && key.codes[0] == -6) ||
+				(mRunning && key.codes[0] == -4)) {
 			newStates[0] = android.R.attr.state_checkable;
 			newStates[1] = android.R.attr.state_checked;
 			newLength = 2;
-			Log.d("Angband", "newlength = 2");
 		}
 
 		if (nativeStates.length + newLength > 0) {

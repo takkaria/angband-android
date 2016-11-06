@@ -31,6 +31,9 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 		virtualKeyboardView.setOnKeyboardActionListener(this);
 
 		switchKeyboard(kbLayoutQwerty);
+
+		boolean shouldRun = state.getRunningMode();
+		virtualKeyboardView.setRunning(shouldRun);
 	}
 
 	private void switchKeyboard(Keyboard newKb)
@@ -58,15 +61,6 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 		}
 	}
 
-	private void handleShift()
-	{
-		Keyboard currentKeyboard = virtualKeyboardView.getKeyboard();
-
-		if (currentKeyboard == kbLayoutQwerty) {
-			virtualKeyboardView.setShifted(!virtualKeyboardView.isShifted());
-		}
-	}
-
 	public void onKey(int primaryCode, int[] keyCodes)
 	{
 		char c = 0;
@@ -76,9 +70,14 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 				c = 0x9F;
 				break;
 
-			case Keyboard.KEYCODE_SHIFT:
-				handleShift();
+			case Keyboard.KEYCODE_SHIFT: {
+				Keyboard currentKeyboard = virtualKeyboardView.getKeyboard();
+				if (currentKeyboard == kbLayoutQwerty) {
+					virtualKeyboardView.setShifted(!virtualKeyboardView.isShifted());
+				}
+
 				break;
+			}
 
 			case Keyboard.KEYCODE_ALT: {
 				Keyboard keyboard = virtualKeyboardView.getKeyboard();
@@ -101,6 +100,15 @@ public class AngbandKeyboard implements OnKeyboardActionListener
 				}
 
 				switchKeyboard(keyboard);
+				break;
+			}
+
+			// Running mode; find a place to store this constant XXX
+			// should maybe be a property of StateManager, also XXX
+			case -4: {
+				boolean shouldRun = !state.getRunningMode();
+				state.setRunningMode(shouldRun);
+				virtualKeyboardView.setRunning(shouldRun);
 				break;
 			}
 

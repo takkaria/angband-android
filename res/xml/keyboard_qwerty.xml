@@ -77,7 +77,8 @@
 
         <Key android:codes="32" android:keyLabel=" "
                 android:keyWidth="25%p" android:isRepeatable="true"/>
-        <Key android:codes="46" android:keyLabel="." android:keyWidth="15%p"/>
+        <Key android:codes="-4" android:keyLabel="RUN"
+                android:keyWidth="15%p"/>
         <Key android:codes="156" android:keyLabel="⏎"
                 android:keyWidth="20%p" android:keyEdgeFlags="right"/>
     </Row>

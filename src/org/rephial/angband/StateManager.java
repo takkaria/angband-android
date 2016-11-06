@@ -37,6 +37,9 @@ public class StateManager {
 	/* game thread */
 	public Handler handler = null;
 
+	/* running mode */
+	private boolean runningMode = false;
+
 	StateManager() {
 		endWin();
 
@@ -171,5 +174,13 @@ public class StateManager {
 			return this.keyBuffer.onKeyUp(keyCode, event);
 		else
 			return false;
+	}
+
+	public void setRunningMode(boolean on) {
+		runningMode = on;
+	}
+
+	public boolean getRunningMode() {
+		return runningMode;
 	}
 }

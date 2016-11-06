@@ -33,7 +33,6 @@ final public class Preferences {
 	static final String KEY_LANDSCAPEKB = "angband.landscapekb";
 	static final String KEY_PORTRAITFONTSIZE = "angband.portraitfontsize";
 	static final String KEY_LANDSCAPEFONTSIZE = "angband.landscapefontsize";
-	static final String KEY_ALWAYSRUN = "angband.alwaysrun";
 
 	static final String KEY_GAMEPLUGIN = "angband.gameplugin";
 	static final String KEY_GAMEPROFILE = "angband.gameprofile";
@@ -163,10 +162,6 @@ final public class Preferences {
 
 	public static boolean getEnableTouch() {
 		return pref.getBoolean(Preferences.KEY_ENABLETOUCH, true);
-	}
-
-	public static boolean getAlwaysRun() {
-		return pref.getBoolean(Preferences.KEY_ALWAYSRUN, true);
 	}
 
 	public static boolean getSkipWelcome() {
